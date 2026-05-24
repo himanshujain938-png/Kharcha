@@ -191,6 +191,32 @@
       padding: 4px 6px; font-weight: 600;
     }
 
+    /* Language switcher */
+    .lang-switcher {
+      position: absolute; top: 16px; right: 16px;
+      top: calc(16px + env(safe-area-inset-top, 0px));
+      display: flex; gap: 4px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 3px; z-index: 1005;
+    }
+    .lang-btn {
+      background: transparent; border: none; color: var(--dim);
+      font-size: 11px; font-weight: 700; padding: 5px 9px;
+      border-radius: 7px; cursor: pointer; font-family: inherit;
+      letter-spacing: 0.3px;
+    }
+    .lang-btn.active { background: var(--purple); color: #fff; }
+
+    .lang-menu-section {
+      border-top: 1px solid var(--border);
+      margin: 4px 0; padding: 6px 8px 4px;
+      font-size: 10px; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      font-weight: 700;
+    }
+    .lang-menu-row { display: flex; gap: 4px; padding: 0 4px 6px; }
+    .lang-menu-row .lang-btn { flex: 1; text-align: center; padding: 7px 4px; }
+
     #appRoot.hidden { display: none; }
 
     .boot-screen { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1001; }
@@ -203,29 +229,34 @@
 
 <div class="boot-screen" id="bootScreen">
   <div class="boot-logo">💸</div>
-  <div class="boot-text">Loading Kharcha…</div>
+  <div class="boot-text" data-i18n="boot_loading">Loading Kharcha…</div>
 </div>
 
 <div class="login-overlay hidden" id="loginOverlay">
+  <div class="lang-switcher" id="langSwitcherLogin">
+    <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" data-lang="hin" onclick="setLang('hin')">HIN</button>
+    <button class="lang-btn" data-lang="hi" onclick="setLang('hi')">हिं</button>
+  </div>
   <div class="login-logo">💸</div>
   <div class="login-title">Kharcha</div>
-  <div class="login-tag">Your expenses, synced everywhere</div>
+  <div class="login-tag" data-i18n="login_tag">Your expenses, synced everywhere</div>
 
   <div class="login-features">
-    <div class="login-feature"><span class="login-feature-icon">☁️</span><span>Auto-sync across all your devices</span></div>
-    <div class="login-feature"><span class="login-feature-icon">📴</span><span>Works fully offline</span></div>
-    <div class="login-feature"><span class="login-feature-icon">🔒</span><span>Only you can see your data</span></div>
-    <div class="login-feature"><span class="login-feature-icon">⚡</span><span>Real-time updates</span></div>
+    <div class="login-feature"><span class="login-feature-icon">☁️</span><span data-i18n="login_feature_sync">Auto-sync across all your devices</span></div>
+    <div class="login-feature"><span class="login-feature-icon">📴</span><span data-i18n="login_feature_offline">Works fully offline</span></div>
+    <div class="login-feature"><span class="login-feature-icon">🔒</span><span data-i18n="login_feature_private">Only you can see your data</span></div>
+    <div class="login-feature"><span class="login-feature-icon">⚡</span><span data-i18n="login_feature_realtime">Real-time updates</span></div>
   </div>
 
   <button class="google-btn" id="googleSignInBtn" onclick="signInWithGoogle()">
     <svg class="google-icon" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.1 7.9 3l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35.3 26.8 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.2 5.2C40.9 35.4 44 30.1 44 24c0-1.3-.1-2.3-.4-3.5z"/></svg>
-    <span id="signInLabel">Sign in with Google</span>
+    <span id="signInLabel" data-i18n="signin_with_google">Sign in with Google</span>
   </button>
 
-  <button class="guest-btn" id="guestBtn" onclick="continueAsGuest()">Continue as Guest</button>
+  <button class="guest-btn" id="guestBtn" onclick="continueAsGuest()" data-i18n="continue_as_guest">Continue as Guest</button>
 
-  <div class="login-foot">Your data is encrypted and stored privately in your own Firebase account.</div>
+  <div class="login-foot" data-i18n="login_foot">Your data is encrypted and stored privately in your own Firebase account.</div>
   <div class="login-error" id="loginError"></div>
 </div>
 
@@ -242,26 +273,32 @@
         <div class="user-menu" id="userMenu">
           <div class="menu-info" id="userEmail">user@gmail.com</div>
           <div class="menu-item" id="menuSignIn" onclick="signInFromGuest()" style="display:none;color:var(--green);">☁️ Sign in to sync</div>
-          <div class="menu-item" onclick="exportBackup()">💾 Export Backup</div>
-          <div class="menu-item" onclick="triggerImport()">📂 Import Backup</div>
-          <div class="menu-item" onclick="signOutUser()" style="color: var(--red);" id="menuSignOut">🚪 Sign out</div>
+          <div class="menu-item" onclick="exportBackup()" data-i18n="menu_export_backup">💾 Export Backup</div>
+          <div class="menu-item" onclick="triggerImport()" data-i18n="menu_import_backup">📂 Import Backup</div>
+          <div class="lang-menu-section" data-i18n="menu_language">LANGUAGE</div>
+          <div class="lang-menu-row">
+            <button class="lang-btn" data-lang="en" onclick="setLang('en')">EN</button>
+            <button class="lang-btn" data-lang="hin" onclick="setLang('hin')">HIN</button>
+            <button class="lang-btn" data-lang="hi" onclick="setLang('hi')">हिं</button>
+          </div>
+          <div class="menu-item" onclick="signOutUser()" style="color: var(--red);" id="menuSignOut" data-i18n="menu_sign_out">🚪 Sign out</div>
         </div>
       </div>
     </div>
-    <p class="subtitle">Your daily expense tracker</p>
+    <p class="subtitle" data-i18n="subtitle">Your daily expense tracker</p>
 
     <div class="guest-banner" id="guestBanner" style="display:none">
-      <span class="guest-banner-text">👤 <strong>Guest mode</strong> — data is on this device only. Sign in to sync everywhere.</span>
-      <button onclick="signInFromGuest()">Sign in</button>
+      <span class="guest-banner-text" data-i18n="guest_banner_text">👤 <strong>Guest mode</strong> — data is on this device only. Sign in to sync everywhere.</span>
+      <button onclick="signInFromGuest()" data-i18n="guest_banner_signin">Sign in</button>
       <button class="close-x" onclick="dismissGuestBanner()">✕</button>
     </div>
 
     <input type="file" id="importFile" accept=".json" onchange="importBackup(event)" style="display:none;" />
 
     <div class="view-toggle">
-      <button class="view-btn active" id="btn-day" onclick="setView('day')">Day</button>
-      <button class="view-btn" id="btn-week" onclick="setView('week')">Week</button>
-      <button class="view-btn" id="btn-month" onclick="setView('month')">Month</button>
+      <button class="view-btn active" id="btn-day" onclick="setView('day')" data-i18n="view_day">Day</button>
+      <button class="view-btn" id="btn-week" onclick="setView('week')" data-i18n="view_week">Week</button>
+      <button class="view-btn" id="btn-month" onclick="setView('month')" data-i18n="view_month">Month</button>
     </div>
 
     <div class="date-nav">
@@ -276,15 +313,15 @@
       <div class="exp-count" id="expCount">0 expenses</div>
 
       <div style="margin-top:16px;background:#0F0F18;border-radius:16px;padding:14px;border:1px solid #2A2A3A;">
-        <div style="font-size:11px;color:#888;margin-bottom:6px;">🏦 Opening Balance</div>
+        <div style="font-size:11px;color:#888;margin-bottom:6px;" data-i18n="opening_balance">🏦 Opening Balance</div>
         <div id="openingBalanceDisplay" style="font-size:22px;font-weight:800;color:#fff;margin-bottom:12px;">₹0</div>
-        <input type="number" id="openingBalanceInput" class="form-input" placeholder="Enter first opening balance" inputmode="numeric" style="margin-bottom:10px;" />
-        <button class="submit-btn" style="padding:10px;font-size:13px;" onclick="saveOpeningBalance()">Save Opening Balance</button>
-        <div style="margin-top:16px;font-size:11px;color:#888;">➕ Income</div>
+        <input type="number" id="openingBalanceInput" class="form-input" placeholder="Enter first opening balance" inputmode="numeric" style="margin-bottom:10px;" data-i18n-ph="placeholder_opening_balance" />
+        <button class="submit-btn" style="padding:10px;font-size:13px;" onclick="saveOpeningBalance()" data-i18n="save_opening_balance">Save Opening Balance</button>
+        <div style="margin-top:16px;font-size:11px;color:#888;" data-i18n="income_label">➕ Income</div>
         <div id="incomeTodayDisplay" style="font-size:18px;font-weight:700;color:#4ADE80;margin-top:4px;">₹0</div>
-        <div style="margin-top:14px;font-size:11px;color:#888;">➖ Expense</div>
+        <div style="margin-top:14px;font-size:11px;color:#888;" data-i18n="expense_label">➖ Expense</div>
         <div id="expenseTodayDisplay" style="font-size:18px;font-weight:700;color:#FF6B6B;margin-top:4px;">₹0</div>
-        <div style="margin-top:14px;font-size:11px;color:#888;">🔒 Closing Balance</div>
+        <div style="margin-top:14px;font-size:11px;color:#888;" data-i18n="closing_balance">🔒 Closing Balance</div>
         <div id="closingBalanceDisplay" style="font-size:24px;font-weight:800;color:#9D8FFF;margin-top:4px;">₹0</div>
       </div>
 
@@ -292,53 +329,53 @@
     </div>
 
     <div class="summary-card" style="margin-top:-4px;">
-      <div class="period-label">📊 Expense Insights</div>
+      <div class="period-label" data-i18n="expense_insights">📊 Expense Insights</div>
       <div id="chartContainer">
         <div class="empty" style="padding:24px 0;">
           <div class="empty-icon">📊</div>
-          <div>Add expenses to see insights</div>
+          <div data-i18n="chart_empty">Add expenses to see insights</div>
         </div>
       </div>
     </div>
 
     <div class="tabs">
-      <button class="tab-btn active" id="tab-add" onclick="setTab('add')">➕ Add Expense</button>
-      <button class="tab-btn" id="tab-income" onclick="setTab('income')">💰 Add Income</button>
-      <button class="tab-btn" id="tab-history" onclick="setTab('history')">📋 History</button>
+      <button class="tab-btn active" id="tab-add" onclick="setTab('add')" data-i18n="tab_add_expense">➕ Add Expense</button>
+      <button class="tab-btn" id="tab-income" onclick="setTab('income')" data-i18n="tab_add_income">💰 Add Income</button>
+      <button class="tab-btn" id="tab-history" onclick="setTab('history')" data-i18n="tab_history">📋 History</button>
     </div>
 
     <div id="formSection" class="form-card">
-      <label class="form-label">Date</label>
+      <label class="form-label" data-i18n="label_date">Date</label>
       <input type="date" class="form-input" id="fDate" />
-      <label class="form-label">Amount (₹)</label>
+      <label class="form-label" data-i18n="label_amount">Amount (₹)</label>
       <input type="number" class="form-input" id="fAmount" placeholder="0" inputmode="numeric" />
-      <label class="form-label">Category</label>
+      <label class="form-label" data-i18n="label_category">Category</label>
       <div class="cat-select" id="catSelect"></div>
-      <label class="form-label">Note (optional)</label>
-      <input type="text" class="form-input" id="fNote" placeholder="What did you spend on?" />
-      <button class="submit-btn" id="submitBtn" onclick="handleSubmit()">Add Expense</button>
-      <button class="cancel-btn" id="cancelBtn" style="display:none" onclick="cancelEdit()">Cancel</button>
+      <label class="form-label" data-i18n="label_note">Note (optional)</label>
+      <input type="text" class="form-input" id="fNote" placeholder="What did you spend on?" data-i18n-ph="placeholder_note" />
+      <button class="submit-btn" id="submitBtn" onclick="handleSubmit()" data-i18n="btn_add_expense">Add Expense</button>
+      <button class="cancel-btn" id="cancelBtn" style="display:none" onclick="cancelEdit()" data-i18n="btn_cancel">Cancel</button>
     </div>
 
     <div id="incomeSection" class="form-card" style="display:none">
-      <label class="form-label">Date</label>
+      <label class="form-label" data-i18n="label_date">Date</label>
       <input type="date" class="form-input" id="iDate" />
-      <label class="form-label">Income Amount (₹)</label>
+      <label class="form-label" data-i18n="label_income_amount">Income Amount (₹)</label>
       <input type="number" class="form-input" id="iAmount" placeholder="0" inputmode="numeric" />
-      <label class="form-label">Income Source</label>
-      <input type="text" class="form-input" id="iSource" placeholder="Salary, Freelance, Bonus..." />
-      <button class="submit-btn" id="incomeSubmitBtn" onclick="addIncome()">Add Income</button>
-      <button class="cancel-btn" id="incomeCancelBtn" style="display:none" onclick="cancelIncomeEdit()">Cancel</button>
+      <label class="form-label" data-i18n="label_income_source">Income Source</label>
+      <input type="text" class="form-input" id="iSource" placeholder="Salary, Freelance, Bonus..." data-i18n-ph="placeholder_income_source" />
+      <button class="submit-btn" id="incomeSubmitBtn" onclick="addIncome()" data-i18n="btn_add_income">Add Income</button>
+      <button class="cancel-btn" id="incomeCancelBtn" style="display:none" onclick="cancelIncomeEdit()" data-i18n="btn_cancel">Cancel</button>
     </div>
 
     <div id="historyFilters" class="form-card" style="display:none; margin-bottom:12px;">
-      <label class="form-label">From Date</label>
+      <label class="form-label" data-i18n="label_from_date">From Date</label>
       <input type="date" class="form-input" id="fromDateFilter" />
-      <label class="form-label">To Date</label>
+      <label class="form-label" data-i18n="label_to_date">To Date</label>
       <input type="date" class="form-input" id="toDateFilter" />
-      <button class="submit-btn" onclick="applyHistoryFilters()">Apply Filters</button>
-      <button class="submit-btn" onclick="exportHistoryCSV()" style="background:linear-gradient(135deg,#00C2A8,#4FE0CB);margin-top:8px;">📊 Export to CSV</button>
-      <button class="cancel-btn" onclick="clearHistoryFilters()">Clear Filters</button>
+      <button class="submit-btn" onclick="applyHistoryFilters()" data-i18n="btn_apply_filters">Apply Filters</button>
+      <button class="submit-btn" onclick="exportHistoryCSV()" style="background:linear-gradient(135deg,#00C2A8,#4FE0CB);margin-top:8px;" data-i18n="btn_export_csv">📊 Export to CSV</button>
+      <button class="cancel-btn" onclick="clearHistoryFilters()" data-i18n="btn_clear_filters">Clear Filters</button>
     </div>
 
     <div id="historySection" style="display:none">
@@ -395,18 +432,266 @@
 </script>
 
 <script>
+// ===== Internationalization (i18n) =====
+const TRANSLATIONS = {
+  // ====== ENGLISH ======
+  en: {
+    login_tag: "Your expenses, synced everywhere",
+    login_feature_sync: "Auto-sync across all your devices",
+    login_feature_offline: "Works fully offline",
+    login_feature_private: "Only you can see your data",
+    login_feature_realtime: "Real-time updates",
+    signin_with_google: "Sign in with Google",
+    signing_in: "Signing in…",
+    continue_as_guest: "Continue as Guest",
+    login_foot: "Your data is encrypted and stored privately in your own Firebase account.",
+    boot_loading: "Loading Kharcha…",
+    network_slow: "Network slow. Connect to the internet and reload to sign in. (You can also continue as guest.)",
+    subtitle: "Your daily expense tracker",
+    guest_banner_text: "👤 <strong>Guest mode</strong> — data is on this device only. Sign in to sync everywhere.",
+    guest_banner_signin: "Sign in",
+    view_day: "Day", view_week: "Week", view_month: "Month",
+    tab_add_expense: "➕ Add Expense", tab_add_income: "💰 Add Income", tab_history: "📋 History",
+    opening_balance: "🏦 Opening Balance",
+    placeholder_opening_balance: "Enter first opening balance",
+    save_opening_balance: "Save Opening Balance",
+    income_label: "➕ Income", expense_label: "➖ Expense", closing_balance: "🔒 Closing Balance",
+    expense_insights: "📊 Expense Insights",
+    chart_empty: "Add expenses to see insights",
+    label_date: "Date", label_amount: "Amount (₹)", label_category: "Category", label_note: "Note (optional)",
+    label_income_amount: "Income Amount (₹)", label_income_source: "Income Source",
+    label_from_date: "From Date", label_to_date: "To Date",
+    placeholder_note: "What did you spend on?",
+    placeholder_income_source: "Salary, Freelance, Bonus...",
+    btn_add_expense: "Add Expense", btn_update_expense: "Update Expense",
+    btn_add_income: "Add Income", btn_update_income: "Update Income",
+    btn_cancel: "Cancel",
+    btn_apply_filters: "Apply Filters", btn_export_csv: "📊 Export to CSV", btn_clear_filters: "Clear Filters",
+    tab_edit_expense: "✏️ Edit Expense",
+    menu_export_backup: "💾 Export Backup", menu_import_backup: "📂 Import Backup",
+    menu_signin_sync: "☁️ Sign in to sync", menu_sign_out: "🚪 Sign out",
+    menu_switch_signin: "🔁 Switch to Sign-in", menu_language: "LANGUAGE",
+    sync_synced: "☁ Synced", sync_loading: "⟳ Loading…", sync_saving: "⟳ Saving…",
+    sync_syncing: "⟳ Syncing…", sync_reconnecting: "⟳ Reconnecting…",
+    sync_offline: "⚠ Offline", sync_offline_queued: "⚠ Offline (queued)",
+    sync_error: "⚠ Sync error", sync_save_error: "⚠ Save error", sync_guest: "👤 Guest",
+    history_empty: "No entries for this period",
+    toast_expense_added: "Expense added ✓", toast_expense_updated: "Expense updated ✓",
+    toast_income_added: "Income added ✓", toast_income_updated: "Income updated ✓",
+    toast_deleted: "Deleted", toast_income_deleted: "Income deleted",
+    toast_invalid_amount: "Enter a valid amount", toast_invalid_income: "Enter valid income",
+    toast_opening_saved: "Opening balance saved", toast_invalid_opening: "Enter valid opening balance",
+    toast_filters_applied: "Filters applied", toast_filters_cleared: "Filters cleared",
+    toast_backup_exported: "Backup exported ✓", toast_backup_restored: "Backup restored ✓",
+    toast_invalid_backup: "Invalid backup file",
+    toast_no_entries: "No entries to export for this range",
+    toast_csv_exported: "CSV exported · {n} entries ✓",
+    toast_signed_out: "Signed out", toast_signout_failed: "Sign out failed",
+    toast_signin_failed: "Sign-in failed: ",
+    toast_guest_mode: "Continuing as guest — your data stays on this device",
+    toast_migrated: "Migrated {n} expense(s) to cloud ✓",
+    toast_welcome: "Welcome! Start tracking 💸",
+    toast_save_failed: "Save failed: ", toast_sync_error: "Sync error: ",
+    expenses_count_one: "1 expense", expenses_count_many: "{n} expenses",
+    income_prefix: "Income: +", balance_prefix_pos: "Balance: +", balance_prefix_neg: "Balance: -",
+    // Categories
+    cat_food: "Food & Dining", cat_groceries: "Groceries", cat_investment: "Investment",
+    cat_transport: "Transport", cat_shopping: "Shopping", cat_health: "Health",
+    cat_entertainment: "Entertainment", cat_utilities: "Utilities", cat_education: "Education", cat_other: "Other",
+  },
+
+  // ====== HINGLISH ======
+  hin: {
+    login_tag: "Aapke kharche, sab jagah sync",
+    login_feature_sync: "Sab devices pe auto-sync",
+    login_feature_offline: "Bina internet ke bhi chalega",
+    login_feature_private: "Sirf aap dekh sakte ho data",
+    login_feature_realtime: "Real-time updates",
+    signin_with_google: "Google se Sign In karein",
+    signing_in: "Sign in ho raha hai…",
+    continue_as_guest: "Guest ke roop mein chalao",
+    login_foot: "Aapka data private hai aur encrypt ho kar Firebase pe stored hai.",
+    boot_loading: "Kharcha load ho raha hai…",
+    network_slow: "Network slow hai. Internet connect karke reload karo. (Guest mode bhi try kar sakte ho.)",
+    subtitle: "Aapka daily kharcha tracker",
+    guest_banner_text: "👤 <strong>Guest mode</strong> — data sirf is phone par hai. Sab devices pe sync ke liye Sign In karo.",
+    guest_banner_signin: "Sign In",
+    view_day: "Din", view_week: "Hafta", view_month: "Mahina",
+    tab_add_expense: "➕ Kharcha Add", tab_add_income: "💰 Income Add", tab_history: "📋 History",
+    opening_balance: "🏦 Opening Balance",
+    placeholder_opening_balance: "Pehla opening balance daalo",
+    save_opening_balance: "Opening Balance Save Karo",
+    income_label: "➕ Income", expense_label: "➖ Kharcha", closing_balance: "🔒 Closing Balance",
+    expense_insights: "📊 Kharche ki Insights",
+    chart_empty: "Insights dekhne ke liye kharcha add karo",
+    label_date: "Date", label_amount: "Amount (₹)", label_category: "Category", label_note: "Note (optional)",
+    label_income_amount: "Income Amount (₹)", label_income_source: "Income kahaan se",
+    label_from_date: "Kab se", label_to_date: "Kab tak",
+    placeholder_note: "Kis cheez ka kharcha?",
+    placeholder_income_source: "Salary, Freelance, Bonus...",
+    btn_add_expense: "Kharcha Add Karo", btn_update_expense: "Kharcha Update Karo",
+    btn_add_income: "Income Add Karo", btn_update_income: "Income Update Karo",
+    btn_cancel: "Cancel",
+    btn_apply_filters: "Filter Lagao", btn_export_csv: "📊 CSV Export Karo", btn_clear_filters: "Filter Hatao",
+    tab_edit_expense: "✏️ Kharcha Edit",
+    menu_export_backup: "💾 Backup Export", menu_import_backup: "📂 Backup Import",
+    menu_signin_sync: "☁️ Sync ke liye Sign In", menu_sign_out: "🚪 Sign Out",
+    menu_switch_signin: "🔁 Sign In pe switch", menu_language: "LANGUAGE",
+    sync_synced: "☁ Sync ho gaya", sync_loading: "⟳ Load ho raha…", sync_saving: "⟳ Save ho raha…",
+    sync_syncing: "⟳ Sync ho raha…", sync_reconnecting: "⟳ Connect ho raha…",
+    sync_offline: "⚠ Offline", sync_offline_queued: "⚠ Offline (queued)",
+    sync_error: "⚠ Sync error", sync_save_error: "⚠ Save error", sync_guest: "👤 Guest",
+    history_empty: "Is period mein kuch nahi hai",
+    toast_expense_added: "Kharcha add ho gaya ✓", toast_expense_updated: "Kharcha update ho gaya ✓",
+    toast_income_added: "Income add ho gayi ✓", toast_income_updated: "Income update ho gayi ✓",
+    toast_deleted: "Delete ho gaya", toast_income_deleted: "Income delete ho gayi",
+    toast_invalid_amount: "Sahi amount likho", toast_invalid_income: "Sahi income likho",
+    toast_opening_saved: "Opening balance save ho gaya", toast_invalid_opening: "Sahi opening balance likho",
+    toast_filters_applied: "Filter lag gaye", toast_filters_cleared: "Filter hat gaye",
+    toast_backup_exported: "Backup export ho gaya ✓", toast_backup_restored: "Backup restore ho gaya ✓",
+    toast_invalid_backup: "Galat backup file",
+    toast_no_entries: "Is range mein export karne ko kuch nahi",
+    toast_csv_exported: "CSV export ho gaya · {n} entries ✓",
+    toast_signed_out: "Sign out ho gaye", toast_signout_failed: "Sign out fail ho gaya",
+    toast_signin_failed: "Sign-in fail ho gaya: ",
+    toast_guest_mode: "Guest mode chalu — data is phone par hi rahega",
+    toast_migrated: "Cloud mein migrate ho gaya: {n} kharche ✓",
+    toast_welcome: "Welcome! Tracking shuru karo 💸",
+    toast_save_failed: "Save fail: ", toast_sync_error: "Sync error: ",
+    expenses_count_one: "1 kharcha", expenses_count_many: "{n} kharche",
+    income_prefix: "Income: +", balance_prefix_pos: "Balance: +", balance_prefix_neg: "Balance: -",
+    cat_food: "Khana", cat_groceries: "Groceries", cat_investment: "Investment",
+    cat_transport: "Transport", cat_shopping: "Shopping", cat_health: "Health",
+    cat_entertainment: "Entertainment", cat_utilities: "Bills", cat_education: "Padhai", cat_other: "Other",
+  },
+
+  // ====== HINDI ======
+  hi: {
+    login_tag: "आपके खर्चे, हर जगह सिंक",
+    login_feature_sync: "सभी डिवाइस पर ऑटो-सिंक",
+    login_feature_offline: "बिना इंटरनेट भी काम करे",
+    login_feature_private: "केवल आप अपना डेटा देख सकते हैं",
+    login_feature_realtime: "रियल-टाइम अपडेट",
+    signin_with_google: "Google से साइन इन करें",
+    signing_in: "साइन इन हो रहा है…",
+    continue_as_guest: "मेहमान के रूप में जारी रखें",
+    login_foot: "आपका डेटा सुरक्षित है और निजी रूप से Firebase पर संग्रहित है।",
+    boot_loading: "खर्चा लोड हो रहा है…",
+    network_slow: "नेटवर्क धीमा है। इंटरनेट कनेक्ट करके रीलोड करें।",
+    subtitle: "आपका रोज़ का खर्चा ट्रैकर",
+    guest_banner_text: "👤 <strong>मेहमान मोड</strong> — डेटा केवल इस फ़ोन पर है। सिंक के लिए साइन इन करें।",
+    guest_banner_signin: "साइन इन",
+    view_day: "दिन", view_week: "हफ़्ता", view_month: "महीना",
+    tab_add_expense: "➕ खर्चा जोड़ें", tab_add_income: "💰 आय जोड़ें", tab_history: "📋 इतिहास",
+    opening_balance: "🏦 आरंभिक राशि",
+    placeholder_opening_balance: "पहली आरंभिक राशि डालें",
+    save_opening_balance: "आरंभिक राशि सहेजें",
+    income_label: "➕ आय", expense_label: "➖ खर्चा", closing_balance: "🔒 अंतिम राशि",
+    expense_insights: "📊 खर्चे की जानकारी",
+    chart_empty: "जानकारी के लिए खर्चा जोड़ें",
+    label_date: "तारीख़", label_amount: "राशि (₹)", label_category: "श्रेणी", label_note: "नोट (वैकल्पिक)",
+    label_income_amount: "आय की राशि (₹)", label_income_source: "आय का स्रोत",
+    label_from_date: "से तारीख़", label_to_date: "तक तारीख़",
+    placeholder_note: "किस चीज़ पर खर्च हुआ?",
+    placeholder_income_source: "वेतन, फ़्रीलांस, बोनस...",
+    btn_add_expense: "खर्चा जोड़ें", btn_update_expense: "खर्चा अपडेट करें",
+    btn_add_income: "आय जोड़ें", btn_update_income: "आय अपडेट करें",
+    btn_cancel: "रद्द करें",
+    btn_apply_filters: "फ़िल्टर लगाएँ", btn_export_csv: "📊 CSV डाउनलोड", btn_clear_filters: "फ़िल्टर हटाएँ",
+    tab_edit_expense: "✏️ खर्चा संपादित करें",
+    menu_export_backup: "💾 बैकअप डाउनलोड", menu_import_backup: "📂 बैकअप अपलोड",
+    menu_signin_sync: "☁️ सिंक के लिए साइन इन", menu_sign_out: "🚪 साइन आउट",
+    menu_switch_signin: "🔁 साइन इन पर जाएँ", menu_language: "भाषा",
+    sync_synced: "☁ सिंक हो गया", sync_loading: "⟳ लोड हो रहा…", sync_saving: "⟳ सहेजा जा रहा…",
+    sync_syncing: "⟳ सिंक हो रहा…", sync_reconnecting: "⟳ जोड़ा जा रहा…",
+    sync_offline: "⚠ ऑफ़लाइन", sync_offline_queued: "⚠ ऑफ़लाइन (कतार में)",
+    sync_error: "⚠ सिंक त्रुटि", sync_save_error: "⚠ सहेजने में त्रुटि", sync_guest: "👤 मेहमान",
+    history_empty: "इस अवधि में कोई प्रविष्टि नहीं",
+    toast_expense_added: "खर्चा जोड़ा गया ✓", toast_expense_updated: "खर्चा अपडेट किया गया ✓",
+    toast_income_added: "आय जोड़ी गई ✓", toast_income_updated: "आय अपडेट की गई ✓",
+    toast_deleted: "हटा दिया गया", toast_income_deleted: "आय हटाई गई",
+    toast_invalid_amount: "सही राशि डालें", toast_invalid_income: "सही आय डालें",
+    toast_opening_saved: "आरंभिक राशि सहेजी गई", toast_invalid_opening: "सही आरंभिक राशि डालें",
+    toast_filters_applied: "फ़िल्टर लगाए गए", toast_filters_cleared: "फ़िल्टर हटाए गए",
+    toast_backup_exported: "बैकअप डाउनलोड हो गया ✓", toast_backup_restored: "बैकअप पुनर्स्थापित हुआ ✓",
+    toast_invalid_backup: "अमान्य बैकअप फ़ाइल",
+    toast_no_entries: "इस सीमा में निर्यात करने को कुछ नहीं",
+    toast_csv_exported: "CSV डाउनलोड हो गया · {n} प्रविष्टियाँ ✓",
+    toast_signed_out: "साइन आउट हुए", toast_signout_failed: "साइन आउट विफल",
+    toast_signin_failed: "साइन-इन विफल: ",
+    toast_guest_mode: "मेहमान मोड चालू — डेटा इसी फ़ोन पर रहेगा",
+    toast_migrated: "क्लाउड में स्थानांतरित: {n} खर्चे ✓",
+    toast_welcome: "स्वागत है! ट्रैकिंग शुरू करें 💸",
+    toast_save_failed: "सहेजने में विफल: ", toast_sync_error: "सिंक त्रुटि: ",
+    expenses_count_one: "1 खर्चा", expenses_count_many: "{n} खर्चे",
+    income_prefix: "आय: +", balance_prefix_pos: "शेष: +", balance_prefix_neg: "शेष: -",
+    cat_food: "खाना", cat_groceries: "किराना", cat_investment: "निवेश",
+    cat_transport: "परिवहन", cat_shopping: "खरीदारी", cat_health: "स्वास्थ्य",
+    cat_entertainment: "मनोरंजन", cat_utilities: "बिल", cat_education: "शिक्षा", cat_other: "अन्य",
+  }
+};
+
+let currentLang = localStorage.getItem('kharcha_lang') || 'en';
+if (!TRANSLATIONS[currentLang]) currentLang = 'en';
+
+function t(key, params) {
+  let s = (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]);
+  if (s == null) s = TRANSLATIONS.en[key];
+  if (s == null) s = key;
+  if (params) {
+    for (const k in params) s = s.split('{' + k + '}').join(params[k]);
+  }
+  return s;
+}
+
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (key) el.innerHTML = t(key);
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    if (key) el.placeholder = t(key);
+  });
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === currentLang);
+  });
+  document.documentElement.lang = currentLang === 'hi' ? 'hi' : (currentLang === 'hin' ? 'en-IN' : 'en');
+  if (typeof render === 'function') {
+    try { render(); } catch (e) {}
+  }
+  // Also re-build the category buttons since their labels change with language
+  if (typeof buildCatSelect === 'function') {
+    try { buildCatSelect(); } catch (e) {}
+  }
+}
+
+window.setLang = function(lang) {
+  if (!TRANSLATIONS[lang]) return;
+  currentLang = lang;
+  localStorage.setItem('kharcha_lang', lang);
+  applyLang();
+  const m = document.getElementById('userMenu');
+  if (m) m.classList.remove('open');
+};
+
+document.addEventListener('DOMContentLoaded', applyLang);
+// ===== End i18n =====
+
 const CATEGORIES = [
-  { id: "food",          label: "Food & Dining",  icon: "🍽️", color: "#FF6B6B" },
-  { id: "groceries",     label: "Groceries",      icon: "🛒", color: "#7ED957" },
-  { id: "investment",    label: "Investment",     icon: "📈", color: "#00C2A8" },
-  { id: "transport",     label: "Transport",       icon: "🚗",  color: "#4ECDC4" },
-  { id: "shopping",      label: "Shopping",        icon: "🛍️", color: "#FFE66D" },
-  { id: "health",        label: "Health",          icon: "💊",  color: "#A8E6CF" },
-  { id: "entertainment", label: "Entertainment",   icon: "🎬",  color: "#C9B1FF" },
-  { id: "utilities",     label: "Utilities",       icon: "💡",  color: "#FFB347" },
-  { id: "education",     label: "Education",       icon: "📚",  color: "#87CEEB" },
-  { id: "other",         label: "Other",           icon: "📦",  color: "#D3D3D3" },
+  { id: "food",          labelKey: "cat_food",          icon: "🍽️", color: "#FF6B6B" },
+  { id: "groceries",     labelKey: "cat_groceries",     icon: "🛒", color: "#7ED957" },
+  { id: "investment",    labelKey: "cat_investment",    icon: "📈", color: "#00C2A8" },
+  { id: "transport",     labelKey: "cat_transport",     icon: "🚗",  color: "#4ECDC4" },
+  { id: "shopping",      labelKey: "cat_shopping",      icon: "🛍️", color: "#FFE66D" },
+  { id: "health",        labelKey: "cat_health",        icon: "💊",  color: "#A8E6CF" },
+  { id: "entertainment", labelKey: "cat_entertainment", icon: "🎬",  color: "#C9B1FF" },
+  { id: "utilities",     labelKey: "cat_utilities",     icon: "💡",  color: "#FFB347" },
+  { id: "education",     labelKey: "cat_education",     icon: "📚",  color: "#87CEEB" },
+  { id: "other",         labelKey: "cat_other",         icon: "📦",  color: "#D3D3D3" },
 ];
+// Helper to get translated label
+function catLabel(c) { return t(c.labelKey); }
 
 let expenses = [];
 let incomes = [];
@@ -474,12 +759,12 @@ function setSyncStatus(state, label) {
 }
 
 window.addEventListener('online', () => {
-  if (isGuestMode) { setSyncStatus('guest', '👤 Guest'); return; }
-  if (currentUser) setSyncStatus('syncing', '⟳ Reconnecting…');
+  if (isGuestMode) { setSyncStatus('guest', t('sync_guest')); return; }
+  if (currentUser) setSyncStatus('syncing', t('sync_reconnecting'));
 });
 window.addEventListener('offline', () => {
-  if (isGuestMode) { setSyncStatus('guest', '👤 Guest'); return; }
-  setSyncStatus('offline', '⚠ Offline');
+  if (isGuestMode) { setSyncStatus('guest', t('sync_guest')); return; }
+  setSyncStatus('offline', t('sync_offline'));
 });
 
 // ===== Firebase wiring =====
@@ -516,7 +801,7 @@ function onUserSignedIn(user) {
   document.getElementById('appRoot').classList.remove('hidden');
   document.getElementById('guestBanner').style.display = 'none';
   document.getElementById('menuSignIn').style.display = 'none';
-  document.getElementById('menuSignOut').textContent = '🚪 Sign out';
+  document.getElementById('menuSignOut').textContent = t('menu_sign_out');
 
   document.getElementById('userEmail').textContent = user.email || user.displayName || 'Signed in';
   const avatarEl = document.getElementById('userAvatar');
@@ -527,7 +812,7 @@ function onUserSignedIn(user) {
     avatarEl.textContent = initial;
   }
 
-  setSyncStatus('syncing', '⟳ Loading…');
+  setSyncStatus('syncing', t('sync_loading'));
   firstSnapshotReceived = false;
   startCloudSync(user.uid);
   init();
@@ -537,7 +822,7 @@ window.continueAsGuest = function() {
   localStorage.setItem('kharcha_guest_mode', '1');
   isGuestMode = true;
   enterGuestMode();
-  showToast('Continuing as guest — your data stays on this device');
+  showToast(t('toast_guest_mode'));
 };
 
 function enterGuestMode() {
@@ -550,14 +835,14 @@ function enterGuestMode() {
     document.getElementById('guestBanner').style.display = 'flex';
   }
   document.getElementById('menuSignIn').style.display = 'flex';
-  document.getElementById('menuSignOut').textContent = '🔁 Switch to Sign-in';
+  document.getElementById('menuSignOut').textContent = t('menu_switch_signin');
 
   document.getElementById('userEmail').textContent = 'Guest (local only)';
   document.getElementById('userAvatar').innerHTML = '';
   document.getElementById('userAvatar').textContent = '👤';
   document.getElementById('userAvatar').style.background = 'var(--border)';
 
-  setSyncStatus('guest', '👤 Guest');
+  setSyncStatus('guest', t('sync_guest'));
 
   // Load from localStorage
   try {
@@ -598,7 +883,7 @@ function onUserSignedOut() {
   const btn = document.getElementById('googleSignInBtn');
   if (btn) btn.disabled = false;
   const label = document.getElementById('signInLabel');
-  if (label) label.textContent = 'Sign in with Google';
+  if (label) label.textContent = t('signin_with_google');
 
   if (unsubscribeSnapshot) {
     unsubscribeSnapshot();
@@ -614,7 +899,7 @@ window.signInWithGoogle = async function() {
   errEl.classList.remove('show');
 
   btn.disabled = true;
-  label.textContent = 'Signing in…';
+  label.textContent = t('signing_in');
 
   const provider = new fb.GoogleAuthProvider();
 
@@ -632,15 +917,15 @@ window.signInWithGoogle = async function() {
         await fb.signInWithRedirect(fb.auth, provider);
         return; // page will reload
       } catch (e2) {
-        errEl.textContent = 'Sign-in failed: ' + (e2.message || e2.code || 'unknown');
+        errEl.textContent = t('toast_signin_failed') + (e2.message || e2.code || 'unknown');
         errEl.classList.add('show');
       }
     } else {
-      errEl.textContent = 'Sign-in failed: ' + (err.message || err.code || 'unknown');
+      errEl.textContent = t('toast_signin_failed') + (err.message || err.code || 'unknown');
       errEl.classList.add('show');
     }
     btn.disabled = false;
-    label.textContent = 'Sign in with Google';
+    label.textContent = t('signin_with_google');
   }
 };
 
@@ -661,9 +946,9 @@ window.signOutUser = async function() {
   try {
     await fb.signOut(fb.auth);
     expenses = []; incomes = []; openingBalance = 0;
-    showToast('Signed out');
+    showToast(t('toast_signed_out'));
   } catch (err) {
-    showToast('Sign out failed');
+    showToast(t('toast_signout_failed'));
   }
 };
 
@@ -688,11 +973,11 @@ function startCloudSync(uid) {
         render();
 
         if (!navigator.onLine) {
-          setSyncStatus('offline', '⚠ Offline');
+          setSyncStatus('offline', t('sync_offline'));
         } else if (hasPendingWrites) {
-          setSyncStatus('syncing', '⟳ Syncing…');
+          setSyncStatus('syncing', t('sync_syncing'));
         } else {
-          setSyncStatus('', '☁ Synced');
+          setSyncStatus('', t('sync_synced'));
         }
       } else {
         // No cloud doc yet
@@ -704,8 +989,8 @@ function startCloudSync(uid) {
     },
     (err) => {
       console.error('Snapshot error:', err);
-      setSyncStatus('error', '⚠ Sync error');
-      showToast('Sync error: ' + (err.code || err.message));
+      setSyncStatus('error', t('sync_error'));
+      showToast(t('toast_sync_error') + (err.code || err.message));
     }
   );
 }
@@ -723,21 +1008,21 @@ async function migrateLocalToCloud() {
   render();
 
   if (expenses.length > 0 || incomes.length > 0) {
-    showToast(`Migrated ${expenses.length} expense(s) to cloud ✓`);
+    showToast(t('toast_migrated', {n: expenses.length}));
   } else {
-    showToast('Welcome! Start tracking 💸');
+    showToast(t('toast_welcome'));
   }
 }
 
 async function pushToCloud() {
   if (isGuestMode) {
     // In guest mode, status is always "guest" — no cloud write
-    setSyncStatus('guest', '👤 Guest');
+    setSyncStatus('guest', t('sync_guest'));
     return;
   }
   if (!currentUser) return;
   const fb = window.__firebase;
-  setSyncStatus('syncing', '⟳ Saving…');
+  setSyncStatus('syncing', t('sync_saving'));
   try {
     const userDocRef = fb.doc(fb.db, 'users', currentUser.uid);
     await fb.setDoc(userDocRef, {
@@ -746,14 +1031,14 @@ async function pushToCloud() {
       version: 1
     }, { merge: true });
     if (navigator.onLine) {
-      setSyncStatus('', '☁ Synced');
+      setSyncStatus('', t('sync_synced'));
     } else {
-      setSyncStatus('offline', '⚠ Offline (queued)');
+      setSyncStatus('offline', t('sync_offline_queued'));
     }
   } catch (err) {
     console.error('Push error:', err);
-    setSyncStatus('error', '⚠ Save error');
-    showToast('Save failed: ' + (err.code || err.message));
+    setSyncStatus('error', t('sync_save_error'));
+    showToast(t('toast_save_failed') + (err.code || err.message));
   }
 }
 
@@ -767,7 +1052,7 @@ function scheduleSave() {
 
   if (isGuestMode) {
     // Guest mode: localStorage only, no debounce needed
-    setSyncStatus('guest', '👤 Guest');
+    setSyncStatus('guest', t('sync_guest'));
     return;
   }
 
@@ -858,7 +1143,7 @@ function buildCatSelect() {
     btn.className = 'cat-btn' + (c.id === selectedCat ? ' cat-active' : '');
     btn.style.borderColor = c.id === selectedCat ? c.color : '#2A2A3A';
     btn.style.background = c.id === selectedCat ? c.color + '20' : '#0F0F18';
-    btn.innerHTML = `<span>${c.icon}</span><span class="cat-btn-label" style="color:${c.id === selectedCat ? c.color : '#555568'}">${c.label.split(' ')[0]}</span>`;
+    btn.innerHTML = `<span>${c.icon}</span><span class="cat-btn-label" style="color:${c.id === selectedCat ? c.color : '#555568'}">${catLabel(c).split(' ')[0]}</span>`;
     btn.onclick = () => { selectedCat = c.id; buildCatSelect(); };
     el.appendChild(btn);
   });
@@ -866,12 +1151,12 @@ function buildCatSelect() {
 
 window.saveOpeningBalance = function() {
   const val = parseFloat(document.getElementById('openingBalanceInput').value);
-  if (isNaN(val)) { showToast('Enter valid opening balance'); return; }
+  if (isNaN(val)) { showToast(t('toast_invalid_opening')); return; }
   openingBalance = val;
   scheduleSave();
   render();
   document.getElementById('openingBalanceInput').value = '';
-  showToast('Opening balance saved');
+  showToast(t('toast_opening_saved'));
 };
 
 window.exportBackup = function() {
@@ -884,7 +1169,7 @@ window.exportBackup = function() {
   a.download = `kharcha-backup-${date}.json`;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  showToast('Backup exported ✓');
+  showToast(t('toast_backup_exported'));
 };
 
 window.exportHistoryCSV = function() {
@@ -901,7 +1186,7 @@ window.exportHistoryCSV = function() {
   }
 
   if (expRows.length === 0 && incRows.length === 0) {
-    showToast('No entries to export for this range');
+    showToast(t('toast_no_entries'));
     return;
   }
 
@@ -925,7 +1210,7 @@ window.exportHistoryCSV = function() {
     rows.push([
       e.date,
       'Expense',
-      cat.label,
+      catLabel(cat),
       e.note || '',
       e.amount,
       '-'
@@ -972,7 +1257,7 @@ window.exportHistoryCSV = function() {
   a.download = `kharcha-${fromStr}-to-${toStr}.csv`;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  showToast(`CSV exported · ${expRows.length + incRows.length} entries ✓`);
+  showToast(t('toast_csv_exported', {n: expRows.length + incRows.length}));
 };
 
 window.importBackup = function(event) {
@@ -988,9 +1273,9 @@ window.importBackup = function(event) {
       openingBalance = parseFloat(data.openingBalance) || 0;
       scheduleSave();
       render();
-      showToast('Backup restored ✓');
+      showToast(t('toast_backup_restored'));
     } catch (err) {
-      showToast('Invalid backup file');
+      showToast(t('toast_invalid_backup'));
     }
   };
   reader.readAsText(file);
@@ -1005,7 +1290,7 @@ function renderSummary() {
 
   document.getElementById('periodLabel').textContent = getPeriodLabel();
   document.getElementById('totalAmount').textContent = formatINR(total);
-  document.getElementById('expCount').textContent = filtered.length + ' expense' + (filtered.length !== 1 ? 's' : '');
+  document.getElementById('expCount').textContent = filtered.length === 1 ? t('expenses_count_one') : t('expenses_count_many', {n: filtered.length});
 
   const sortedDates = [...new Set([...expenses.map(e=>e.date), ...incomes.map(i=>i.date)])].sort();
 
@@ -1037,8 +1322,8 @@ function renderSummary() {
   if (!incomeEl) { incomeEl = document.createElement('div'); incomeEl.id = 'incomeDisplay'; incomeEl.className = 'income-amount'; summaryCard.appendChild(incomeEl); }
   if (!netEl) { netEl = document.createElement('div'); netEl.id = 'netDisplay'; netEl.className = 'net-amount'; summaryCard.appendChild(netEl); }
 
-  incomeEl.textContent = 'Income: +' + formatINR(incomeTotal);
-  netEl.textContent = 'Balance: ' + (net >= 0 ? '+' : '-') + formatINR(Math.abs(net));
+  incomeEl.textContent = t('income_prefix') + formatINR(incomeTotal);
+  netEl.textContent = (net >= 0 ? t('balance_prefix_pos') : t('balance_prefix_neg')) + formatINR(Math.abs(net));
   netEl.style.color = net >= 0 ? '#4ADE80' : '#FF6B6B';
 
   const totals = {};
@@ -1051,7 +1336,7 @@ function renderSummary() {
       <div class="cat-card" style="border:1px solid ${c.color}22">
         <div class="cat-dot" style="background:${c.color}"></div>
         <div>
-          <div class="cat-name">${c.icon} ${c.label}</div>
+          <div class="cat-name">${c.icon} ${catLabel(c)}</div>
           <div class="cat-amt">${formatINR(totals[c.id])}</div>
         </div>
       </div>`;
@@ -1063,11 +1348,11 @@ function renderChart() {
   const totals = {};
   filtered.forEach(e => { totals[e.category] = (totals[e.category] || 0) + e.amount; });
 
-  const items = CATEGORIES.filter(c => totals[c.id]).map(c => ({ label: c.label, value: totals[c.id], color: c.color }));
+  const items = CATEGORIES.filter(c => totals[c.id]).map(c => ({ label: catLabel(c), value: totals[c.id], color: c.color }));
   const container = document.getElementById('chartContainer');
 
   if (items.length === 0) {
-    container.innerHTML = `<div class="empty" style="padding:24px 0;"><div class="empty-icon">📊</div><div>Add expenses to see insights</div></div>`;
+    container.innerHTML = `<div class="empty" style="padding:24px 0;"><div class="empty-icon">📊</div><div>${t('chart_empty')}</div></div>`;
     return;
   }
 
@@ -1128,7 +1413,7 @@ function renderHistory() {
   const list = document.getElementById('historyList');
 
   if (filtered.length === 0) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">🧾</div><div>No entries for this period</div></div>`;
+    list.innerHTML = `<div class="empty"><div class="empty-icon">🧾</div><div>${t('history_empty')}</div></div>`;
     return;
   }
 
@@ -1160,7 +1445,7 @@ function renderHistory() {
     const cat = getCat(exp.category);
     if (confirmDeleteId === exp.id) {
       return `<div class="confirm-box">
-        <span class="confirm-text">Delete "${escapeHtml(exp.note || cat.label)}"?</span>
+        <span class="confirm-text">Delete "${escapeHtml(exp.note || catLabel(cat))}"?</span>
         <button class="confirm-yes" onclick="doDelete(${exp.id})">Delete</button>
         <button class="confirm-no" onclick="cancelDeleteConfirm()">Cancel</button>
       </div>`;
@@ -1168,8 +1453,8 @@ function renderHistory() {
     return `<div class="expense-item">
       <div class="exp-icon" style="background:${cat.color}20">${cat.icon}</div>
       <div class="exp-info">
-        <div class="exp-note">${escapeHtml(exp.note || cat.label)}</div>
-        <div class="exp-meta">${new Date(exp.date + 'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })} · ${cat.label}</div>
+        <div class="exp-note">${escapeHtml(exp.note || catLabel(cat))}</div>
+        <div class="exp-meta">${new Date(exp.date + 'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })} · ${catLabel(cat)}</div>
       </div>
       <div class="exp-right">
         <span class="exp-amt">−${formatINR(exp.amount)}</span>
@@ -1184,20 +1469,20 @@ function renderHistory() {
 
 window.handleSubmit = function() {
   const amount = parseFloat(document.getElementById('fAmount').value);
-  if (!amount || amount <= 0) { showToast('Enter a valid amount'); return; }
+  if (!amount || amount <= 0) { showToast(t('toast_invalid_amount')); return; }
   const date = document.getElementById('fDate').value || todayStr();
   const note = document.getElementById('fNote').value.trim();
 
   if (editId !== null) {
     expenses = expenses.map(e => e.id === editId ? { ...e, date, amount, category: selectedCat, note } : e);
     editId = null;
-    document.getElementById('submitBtn').textContent = 'Add Expense';
+    document.getElementById('submitBtn').textContent = t('btn_add_expense');
     document.getElementById('cancelBtn').style.display = 'none';
-    document.getElementById('tab-add').textContent = '➕ Add Expense';
-    showToast('Expense updated ✓');
+    document.getElementById('tab-add').textContent = t('tab_add_expense');
+    showToast(t('toast_expense_updated'));
   } else {
     expenses.unshift({ id: Date.now(), date, amount, category: selectedCat, note });
-    showToast('Expense added ✓');
+    showToast(t('toast_expense_added'));
   }
 
   scheduleSave();
@@ -1218,9 +1503,9 @@ window.startEdit = function(id) {
   document.getElementById('fAmount').value = exp.amount;
   document.getElementById('fNote').value = exp.note || '';
   buildCatSelect();
-  document.getElementById('submitBtn').textContent = 'Update Expense';
+  document.getElementById('submitBtn').textContent = t('btn_update_expense');
   document.getElementById('cancelBtn').style.display = 'block';
-  document.getElementById('tab-add').textContent = '✏️ Edit Expense';
+  document.getElementById('tab-add').textContent = t('tab_edit_expense');
   setTab('add');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
@@ -1231,9 +1516,9 @@ window.cancelEdit = function() {
   document.getElementById('fNote').value = '';
   document.getElementById('fDate').value = todayStr();
   selectedCat = 'food'; buildCatSelect();
-  document.getElementById('submitBtn').textContent = 'Add Expense';
+  document.getElementById('submitBtn').textContent = t('btn_add_expense');
   document.getElementById('cancelBtn').style.display = 'none';
-  document.getElementById('tab-add').textContent = '➕ Add Expense';
+  document.getElementById('tab-add').textContent = t('tab_add_expense');
 };
 
 window.askDelete = function(id) { confirmDeleteId = id; renderHistory(); };
@@ -1243,24 +1528,24 @@ window.doDelete = function(id) {
   confirmDeleteId = null;
   scheduleSave();
   render();
-  showToast('Deleted');
+  showToast(t('toast_deleted'));
 };
 
 window.addIncome = function() {
   const amount = parseFloat(document.getElementById('iAmount').value);
-  if (!amount || amount <= 0) { showToast('Enter valid income'); return; }
+  if (!amount || amount <= 0) { showToast(t('toast_invalid_income')); return; }
   const date = document.getElementById('iDate').value || todayStr();
   const source = document.getElementById('iSource').value.trim() || 'Income';
 
   if (incomeEditId !== null) {
     incomes = incomes.map(i => i.id === incomeEditId ? { ...i, date, amount, source } : i);
     incomeEditId = null;
-    showToast('Income updated ✓');
-    document.getElementById('incomeSubmitBtn').textContent = 'Add Income';
+    showToast(t('toast_income_updated'));
+    document.getElementById('incomeSubmitBtn').textContent = t('btn_add_income');
     document.getElementById('incomeCancelBtn').style.display = 'none';
   } else {
     incomes.unshift({ id: Date.now(), date, amount, source });
-    showToast('Income added ✓');
+    showToast(t('toast_income_added'));
   }
 
   scheduleSave();
@@ -1278,7 +1563,7 @@ window.startIncomeEdit = function(id) {
   document.getElementById('iDate').value = income.date;
   document.getElementById('iAmount').value = income.amount;
   document.getElementById('iSource').value = income.source;
-  document.getElementById('incomeSubmitBtn').textContent = 'Update Income';
+  document.getElementById('incomeSubmitBtn').textContent = t('btn_update_income');
   document.getElementById('incomeCancelBtn').style.display = 'block';
   setTab('income');
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1289,7 +1574,7 @@ window.cancelIncomeEdit = function() {
   document.getElementById('iAmount').value = '';
   document.getElementById('iSource').value = '';
   document.getElementById('iDate').value = todayStr();
-  document.getElementById('incomeSubmitBtn').textContent = 'Add Income';
+  document.getElementById('incomeSubmitBtn').textContent = t('btn_add_income');
   document.getElementById('incomeCancelBtn').style.display = 'none';
 };
 
@@ -1298,14 +1583,14 @@ window.doDeleteIncome = function(id) {
   confirmDeleteId = null;
   scheduleSave();
   render();
-  showToast('Income deleted');
+  showToast(t('toast_income_deleted'));
 };
 
 window.applyHistoryFilters = function() {
   historyFromDate = document.getElementById('fromDateFilter').value;
   historyToDate = document.getElementById('toDateFilter').value;
   renderHistory();
-  showToast('Filters applied');
+  showToast(t('toast_filters_applied'));
 };
 
 window.clearHistoryFilters = function() {
@@ -1314,7 +1599,7 @@ window.clearHistoryFilters = function() {
   document.getElementById('fromDateFilter').value = '';
   document.getElementById('toDateFilter').value = '';
   renderHistory();
-  showToast('Filters cleared');
+  showToast(t('toast_filters_cleared'));
 };
 
 function render() {
@@ -1368,7 +1653,7 @@ setTimeout(() => {
     document.getElementById('loginOverlay').classList.remove('hidden');
     if (!window.__firebase) {
       const err = document.getElementById('loginError');
-      err.textContent = 'Network slow. Connect to the internet and reload to sign in. (You can also continue as guest.)';
+      err.textContent = t('network_slow');
       err.classList.add('show');
     }
   }
