@@ -168,6 +168,29 @@
     .login-error { margin-top: 16px; padding: 10px 14px; background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.3); border-radius: 10px; color: var(--red); font-size: 12px; text-align: center; max-width: 320px; display: none; word-break: break-word; }
     .login-error.show { display: block; }
 
+    /* Guest mode styles */
+    .guest-btn { width: 100%; max-width: 320px; padding: 12px 18px; border: 1px solid var(--border); border-radius: 14px; background: transparent; color: var(--text); font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 10px; }
+    .guest-btn:hover { background: var(--surface); }
+    .sync-status.guest { color: var(--muted); }
+    .guest-banner {
+      background: rgba(245,158,11,0.08);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 12px; padding: 10px 14px; margin-bottom: 16px;
+      font-size: 12px; color: var(--amber);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .guest-banner .guest-banner-text { flex: 1; line-height: 1.4; }
+    .guest-banner button {
+      background: var(--amber); color: #1f1f1f;
+      border: none; border-radius: 8px;
+      padding: 6px 10px; font-size: 11px; font-weight: 700;
+      cursor: pointer; font-family: inherit; flex-shrink: 0;
+    }
+    .guest-banner .close-x {
+      background: none; color: var(--dim);
+      padding: 4px 6px; font-weight: 600;
+    }
+
     #appRoot.hidden { display: none; }
 
     .boot-screen { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1001; }
@@ -200,6 +223,8 @@
     <span id="signInLabel">Sign in with Google</span>
   </button>
 
+  <button class="guest-btn" id="guestBtn" onclick="continueAsGuest()">Continue as Guest</button>
+
   <div class="login-foot">Your data is encrypted and stored privately in your own Firebase account.</div>
   <div class="login-error" id="loginError"></div>
 </div>
@@ -216,13 +241,20 @@
         <div class="avatar" id="userAvatar">U</div>
         <div class="user-menu" id="userMenu">
           <div class="menu-info" id="userEmail">user@gmail.com</div>
+          <div class="menu-item" id="menuSignIn" onclick="signInFromGuest()" style="display:none;color:var(--green);">☁️ Sign in to sync</div>
           <div class="menu-item" onclick="exportBackup()">💾 Export Backup</div>
           <div class="menu-item" onclick="triggerImport()">📂 Import Backup</div>
-          <div class="menu-item" onclick="signOutUser()" style="color: var(--red);">🚪 Sign out</div>
+          <div class="menu-item" onclick="signOutUser()" style="color: var(--red);" id="menuSignOut">🚪 Sign out</div>
         </div>
       </div>
     </div>
     <p class="subtitle">Your daily expense tracker</p>
+
+    <div class="guest-banner" id="guestBanner" style="display:none">
+      <span class="guest-banner-text">👤 <strong>Guest mode</strong> — data is on this device only. Sign in to sync everywhere.</span>
+      <button onclick="signInFromGuest()">Sign in</button>
+      <button class="close-x" onclick="dismissGuestBanner()">✕</button>
+    </div>
 
     <input type="file" id="importFile" accept=".json" onchange="importBackup(event)" style="display:none;" />
 
@@ -305,6 +337,7 @@
       <label class="form-label">To Date</label>
       <input type="date" class="form-input" id="toDateFilter" />
       <button class="submit-btn" onclick="applyHistoryFilters()">Apply Filters</button>
+      <button class="submit-btn" onclick="exportHistoryCSV()" style="background:linear-gradient(135deg,#00C2A8,#4FE0CB);margin-top:8px;">📊 Export to CSV</button>
       <button class="cancel-btn" onclick="clearHistoryFilters()">Clear Filters</button>
     </div>
 
@@ -389,6 +422,7 @@ let historyFromDate = '';
 let historyToDate = '';
 
 let currentUser = null;
+let isGuestMode = false;
 let unsubscribeSnapshot = null;
 let saveTimer = null;
 let firstSnapshotReceived = false;
@@ -440,9 +474,11 @@ function setSyncStatus(state, label) {
 }
 
 window.addEventListener('online', () => {
+  if (isGuestMode) { setSyncStatus('guest', '👤 Guest'); return; }
   if (currentUser) setSyncStatus('syncing', '⟳ Reconnecting…');
 });
 window.addEventListener('offline', () => {
+  if (isGuestMode) { setSyncStatus('guest', '👤 Guest'); return; }
   setSyncStatus('offline', '⚠ Offline');
 });
 
@@ -457,10 +493,19 @@ window.addEventListener('firebase-ready', () => {
   fb.onAuthStateChanged(fb.auth, (user) => {
     if (user) {
       currentUser = user;
+      isGuestMode = false;
+      localStorage.removeItem('kharcha_guest_mode');
       onUserSignedIn(user);
     } else {
       currentUser = null;
-      onUserSignedOut();
+      // Check if user previously chose guest mode
+      if (localStorage.getItem('kharcha_guest_mode') === '1') {
+        isGuestMode = true;
+        enterGuestMode();
+      } else {
+        isGuestMode = false;
+        onUserSignedOut();
+      }
     }
   });
 });
@@ -469,6 +514,9 @@ function onUserSignedIn(user) {
   document.getElementById('bootScreen').classList.add('hidden');
   document.getElementById('loginOverlay').classList.add('hidden');
   document.getElementById('appRoot').classList.remove('hidden');
+  document.getElementById('guestBanner').style.display = 'none';
+  document.getElementById('menuSignIn').style.display = 'none';
+  document.getElementById('menuSignOut').textContent = '🚪 Sign out';
 
   document.getElementById('userEmail').textContent = user.email || user.displayName || 'Signed in';
   const avatarEl = document.getElementById('userAvatar');
@@ -485,10 +533,66 @@ function onUserSignedIn(user) {
   init();
 }
 
+window.continueAsGuest = function() {
+  localStorage.setItem('kharcha_guest_mode', '1');
+  isGuestMode = true;
+  enterGuestMode();
+  showToast('Continuing as guest — your data stays on this device');
+};
+
+function enterGuestMode() {
+  document.getElementById('bootScreen').classList.add('hidden');
+  document.getElementById('loginOverlay').classList.add('hidden');
+  document.getElementById('appRoot').classList.remove('hidden');
+
+  // Show guest banner unless user dismissed it previously
+  if (localStorage.getItem('kharcha_guest_banner_dismissed') !== '1') {
+    document.getElementById('guestBanner').style.display = 'flex';
+  }
+  document.getElementById('menuSignIn').style.display = 'flex';
+  document.getElementById('menuSignOut').textContent = '🔁 Switch to Sign-in';
+
+  document.getElementById('userEmail').textContent = 'Guest (local only)';
+  document.getElementById('userAvatar').innerHTML = '';
+  document.getElementById('userAvatar').textContent = '👤';
+  document.getElementById('userAvatar').style.background = 'var(--border)';
+
+  setSyncStatus('guest', '👤 Guest');
+
+  // Load from localStorage
+  try {
+    expenses = JSON.parse(localStorage.getItem('kharcha_expenses') || '[]');
+    incomes = JSON.parse(localStorage.getItem('kharcha_incomes') || '[]');
+    openingBalance = parseFloat(localStorage.getItem('kharcha_opening_balance') || '0');
+    if (isNaN(openingBalance)) openingBalance = 0;
+  } catch (e) {
+    expenses = []; incomes = []; openingBalance = 0;
+  }
+
+  init();
+}
+
+window.signInFromGuest = function() {
+  document.getElementById('userMenu').classList.remove('open');
+  // Clear guest flag so sign-in completes properly
+  localStorage.removeItem('kharcha_guest_mode');
+  // Trigger Google sign-in directly
+  signInWithGoogle();
+};
+
+window.dismissGuestBanner = function() {
+  document.getElementById('guestBanner').style.display = 'none';
+  localStorage.setItem('kharcha_guest_banner_dismissed', '1');
+};
+
 function onUserSignedOut() {
   document.getElementById('bootScreen').classList.add('hidden');
   document.getElementById('appRoot').classList.add('hidden');
   document.getElementById('loginOverlay').classList.remove('hidden');
+
+  // Reset avatar background (in case it was guest)
+  const av = document.getElementById('userAvatar');
+  if (av) av.style.background = '';
 
   // Reset button state
   const btn = document.getElementById('googleSignInBtn');
@@ -541,6 +645,18 @@ window.signInWithGoogle = async function() {
 };
 
 window.signOutUser = async function() {
+  document.getElementById('userMenu').classList.remove('open');
+
+  if (isGuestMode) {
+    // Switch from guest to sign-in flow
+    // Keep local data so it can migrate when they sign in
+    localStorage.removeItem('kharcha_guest_mode');
+    isGuestMode = false;
+    document.getElementById('appRoot').classList.add('hidden');
+    document.getElementById('loginOverlay').classList.remove('hidden');
+    return;
+  }
+
   const fb = window.__firebase;
   try {
     await fb.signOut(fb.auth);
@@ -614,6 +730,11 @@ async function migrateLocalToCloud() {
 }
 
 async function pushToCloud() {
+  if (isGuestMode) {
+    // In guest mode, status is always "guest" — no cloud write
+    setSyncStatus('guest', '👤 Guest');
+    return;
+  }
   if (!currentUser) return;
   const fb = window.__firebase;
   setSyncStatus('syncing', '⟳ Saving…');
@@ -637,12 +758,18 @@ async function pushToCloud() {
 }
 
 function scheduleSave() {
-  // Also save to localStorage as redundant backup
+  // Always save locally (works as backup for signed-in users, primary storage for guests)
   try {
     localStorage.setItem('kharcha_expenses', JSON.stringify(expenses));
     localStorage.setItem('kharcha_incomes', JSON.stringify(incomes));
     localStorage.setItem('kharcha_opening_balance', String(openingBalance));
   } catch (e) {}
+
+  if (isGuestMode) {
+    // Guest mode: localStorage only, no debounce needed
+    setSyncStatus('guest', '👤 Guest');
+    return;
+  }
 
   if (saveTimer) clearTimeout(saveTimer);
   saveTimer = setTimeout(pushToCloud, 350);
@@ -758,6 +885,94 @@ window.exportBackup = function() {
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   showToast('Backup exported ✓');
+};
+
+window.exportHistoryCSV = function() {
+  // Build filtered lists (respect current From/To filters)
+  let expRows = expenses.slice();
+  let incRows = incomes.slice();
+  if (historyFromDate) {
+    expRows = expRows.filter(e => e.date >= historyFromDate);
+    incRows = incRows.filter(i => i.date >= historyFromDate);
+  }
+  if (historyToDate) {
+    expRows = expRows.filter(e => e.date <= historyToDate);
+    incRows = incRows.filter(i => i.date <= historyToDate);
+  }
+
+  if (expRows.length === 0 && incRows.length === 0) {
+    showToast('No entries to export for this range');
+    return;
+  }
+
+  // CSV escape helper — wraps in quotes if needed, escapes internal quotes
+  function csvCell(v) {
+    if (v == null) return '';
+    const s = String(v);
+    if (/[",\n\r]/.test(s)) {
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    return s;
+  }
+
+  const rows = [];
+  // Header
+  rows.push(['Date', 'Type', 'Category / Source', 'Note', 'Amount (INR)', 'Sign'].map(csvCell).join(','));
+
+  // Expense rows
+  expRows.forEach(e => {
+    const cat = getCat(e.category);
+    rows.push([
+      e.date,
+      'Expense',
+      cat.label,
+      e.note || '',
+      e.amount,
+      '-'
+    ].map(csvCell).join(','));
+  });
+
+  // Income rows
+  incRows.forEach(i => {
+    rows.push([
+      i.date,
+      'Income',
+      i.source || 'Income',
+      '',
+      i.amount,
+      '+'
+    ].map(csvCell).join(','));
+  });
+
+  // Sort by date (newest first)
+  // (header stays at top: sort only rows after [0])
+  const header = rows.shift();
+  rows.sort((a, b) => {
+    const da = a.split(',')[0].replace(/"/g, '');
+    const db = b.split(',')[0].replace(/"/g, '');
+    return db.localeCompare(da);
+  });
+
+  // Summary footer
+  const totalExp = expRows.reduce((s, e) => s + e.amount, 0);
+  const totalInc = incRows.reduce((s, i) => s + i.amount, 0);
+  const net = totalInc - totalExp;
+  rows.push('');
+  rows.push(['', '', '', 'Total Income', totalInc, '+'].map(csvCell).join(','));
+  rows.push(['', '', '', 'Total Expense', totalExp, '-'].map(csvCell).join(','));
+  rows.push(['', '', '', 'Net Balance', Math.abs(net), net >= 0 ? '+' : '-'].map(csvCell).join(','));
+
+  const csv = '\uFEFF' + [header, ...rows].join('\n'); // BOM for Excel UTF-8 compatibility
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  const fromStr = historyFromDate || 'all';
+  const toStr = historyToDate || 'all';
+  a.download = `kharcha-${fromStr}-to-${toStr}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  showToast(`CSV exported · ${expRows.length + incRows.length} entries ✓`);
 };
 
 window.importBackup = function(event) {
@@ -1142,12 +1357,18 @@ function init() {
 // If Firebase doesn't load within 8s, show login (so user isn't stuck on boot)
 setTimeout(() => {
   const boot = document.getElementById('bootScreen');
-  if (boot && !boot.classList.contains('hidden') && !currentUser) {
+  if (boot && !boot.classList.contains('hidden') && !currentUser && !isGuestMode) {
+    // If user previously chose guest mode, enter it directly (works offline too)
+    if (localStorage.getItem('kharcha_guest_mode') === '1') {
+      isGuestMode = true;
+      enterGuestMode();
+      return;
+    }
     boot.classList.add('hidden');
     document.getElementById('loginOverlay').classList.remove('hidden');
     if (!window.__firebase) {
       const err = document.getElementById('loginError');
-      err.textContent = 'Network slow. Connect to the internet and reload to sign in. (App works offline once signed in.)';
+      err.textContent = 'Network slow. Connect to the internet and reload to sign in. (You can also continue as guest.)';
       err.classList.add('show');
     }
   }
