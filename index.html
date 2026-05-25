@@ -176,7 +176,79 @@
     .footer-icon-link.instagram { background: linear-gradient(45deg, #F58529, #DD2A7B, #8134AF, #515BD4); }
     .footer-credit { font-size: 11px; color: var(--dim); margin-top: 12px; }
 
-    .cat-select { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+    /* Multi-select category picker */
+    .cat-multi-trigger {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text); font-size: 14px;
+      padding: 12px 14px; outline: none; font-family: inherit; margin-bottom: 14px;
+      cursor: pointer; text-align: left;
+      display: flex; align-items: center; gap: 8px;
+      min-height: 46px;
+    }
+    .cat-multi-trigger .placeholder { color: var(--dim); flex: 1; }
+    .cat-multi-trigger .chips-area { flex: 1; display: flex; flex-wrap: wrap; gap: 6px; }
+    .cat-multi-trigger .arrow { color: var(--muted); font-size: 12px; }
+    .cat-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--purple); color: #fff;
+      border-radius: 8px; padding: 3px 8px;
+      font-size: 12px; font-weight: 600;
+    }
+
+    /* Multi-select modal */
+    .multi-modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      z-index: 1100; display: none;
+      align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    .multi-modal-backdrop.open { display: flex; }
+    .multi-modal {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 18px; width: 100%; max-width: 360px;
+      max-height: 80vh; overflow: hidden;
+      display: flex; flex-direction: column;
+    }
+    .multi-modal-header {
+      padding: 16px 18px; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .multi-modal-title { font-size: 16px; font-weight: 700; }
+    .multi-modal-close {
+      background: none; border: none; color: var(--muted);
+      font-size: 22px; cursor: pointer; padding: 0; line-height: 1;
+    }
+    .multi-modal-list {
+      flex: 1; overflow-y: auto; padding: 8px;
+    }
+    .multi-option {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 12px; border-radius: 10px; cursor: pointer;
+      user-select: none;
+    }
+    .multi-option:hover { background: var(--surface2); }
+    .multi-option .check {
+      width: 22px; height: 22px; border-radius: 6px;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: #fff;
+      flex-shrink: 0;
+    }
+    .multi-option.selected .check { background: var(--purple); border-color: var(--purple); }
+    .multi-option .opt-icon { font-size: 18px; }
+    .multi-option .opt-label { flex: 1; font-size: 14px; }
+    .multi-modal-footer {
+      padding: 12px 14px; border-top: 1px solid var(--border);
+      display: flex; gap: 8px;
+    }
+    .multi-modal-footer button {
+      flex: 1; padding: 10px; border: none; border-radius: 10px;
+      font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+    .multi-modal-footer .clear-btn { background: var(--border); color: var(--text); }
+    .multi-modal-footer .apply-btn { background: var(--purple); color: #fff; }
+
+    .cat-select { width: 100%; margin-bottom: 14px; }
     .cat-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border-radius: 12px; border: 2px solid var(--border); background: var(--surface2); cursor: pointer; transition: all 0.15s; font-size: 20px; }
     .cat-btn-label { font-size: 9px; font-weight: 600; color: var(--dim); text-align: center; line-height: 1.2; }
 
@@ -445,9 +517,10 @@
         <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
       </div>
       <label class="form-label" data-i18n="label_filter_category">Filter by Category</label>
-      <select class="form-select" id="categoryFilter" onchange="onCategoryFilterChange(this.value)">
-        <option value="" data-i18n="filter_all_categories">All Categories</option>
-      </select>
+      <button type="button" class="cat-multi-trigger" id="categoryFilterTrigger" onclick="openCategoryMultiSelect()">
+        <span class="chips-area" id="categoryFilterChips"></span>
+        <span class="arrow">▾</span>
+      </button>
       <label class="form-label" data-i18n="label_from_date">From Date</label>
       <input type="date" class="form-input" id="fromDateFilter" />
       <label class="form-label" data-i18n="label_to_date">To Date</label>
@@ -476,6 +549,21 @@
         </a>
       </div>
       <div class="footer-credit" data-i18n="footer_credit">Made with ❤️ by Himanshu</div>
+    </div>
+  </div>
+</div>
+
+<!-- Category Multi-Select Modal -->
+<div class="multi-modal-backdrop" id="catMultiModal" onclick="onCatMultiBackdropClick(event)">
+  <div class="multi-modal">
+    <div class="multi-modal-header">
+      <div class="multi-modal-title" data-i18n="select_categories">Select Categories</div>
+      <button class="multi-modal-close" onclick="closeCategoryMultiSelect()">✕</button>
+    </div>
+    <div class="multi-modal-list" id="catMultiList"></div>
+    <div class="multi-modal-footer">
+      <button class="clear-btn" onclick="catMultiClearAll()" data-i18n="btn_clear">Clear</button>
+      <button class="apply-btn" onclick="catMultiApply()" data-i18n="btn_apply">Apply</button>
     </div>
   </div>
 </div>
@@ -596,6 +684,7 @@ const TRANSLATIONS = {
     pm_cash: "💵 Cash", pm_upi: "📱 UPI", pm_credit_card: "💳 Credit Card", pm_debit_card: "🏧 Debit Card", pm_bank_transfer: "🏦 Bank Transfer",
     footer_feedback: "Feedback or just say hi 👋",
     footer_credit: "Made with ❤️ by Himanshu",
+    select_categories: "Select Categories", btn_apply: "Apply", btn_clear: "Clear",
     // Categories
     cat_food: "Food & Dining", cat_cafe: "Cafe & Snacks", cat_groceries: "Groceries",
     cat_transport: "Transport", cat_travel: "Travel", cat_rent_bills: "Rent & Bills",
@@ -670,6 +759,7 @@ const TRANSLATIONS = {
     pm_cash: "💵 Cash", pm_upi: "📱 UPI", pm_credit_card: "💳 Credit Card", pm_debit_card: "🏧 Debit Card", pm_bank_transfer: "🏦 Bank Transfer",
     footer_feedback: "Feedback ya bas hi bolo 👋",
     footer_credit: "Banayi ❤️ se — Himanshu ne",
+    select_categories: "Categories Chuno", btn_apply: "Apply", btn_clear: "Clear",
     cat_food: "Khana", cat_cafe: "Chai & Snacks", cat_groceries: "Groceries",
     cat_transport: "Transport", cat_travel: "Travel", cat_rent_bills: "Rent & Bills",
     cat_subscriptions: "Subscriptions", cat_shopping: "Shopping", cat_health: "Health",
@@ -743,6 +833,7 @@ const TRANSLATIONS = {
     pm_cash: "💵 नकद", pm_upi: "📱 UPI", pm_credit_card: "💳 क्रेडिट कार्ड", pm_debit_card: "🏧 डेबिट कार्ड", pm_bank_transfer: "🏦 बैंक स्थानांतरण",
     footer_feedback: "फ़ीडबैक या बस नमस्ते 👋",
     footer_credit: "❤️ से बनाया — हिमांशु",
+    select_categories: "श्रेणियाँ चुनें", btn_apply: "लागू करें", btn_clear: "साफ़ करें",
     cat_food: "खाना", cat_cafe: "चाय व नाश्ता", cat_groceries: "किराना",
     cat_transport: "परिवहन", cat_travel: "यात्रा", cat_rent_bills: "किराया व बिल",
     cat_subscriptions: "सब्सक्रिप्शन", cat_shopping: "खरीदारी", cat_health: "स्वास्थ्य",
@@ -848,7 +939,8 @@ let confirmDeleteId = null;
 let historyFromDate = '';
 let historyToDate = '';
 let historySearchText = '';
-let historyCategoryFilter = '';
+let historyCategoryFilters = []; // array of category ids (empty = all)
+let pendingCatMultiSelection = []; // working set inside modal
 
 let currentUser = null;
 let isGuestMode = false;
@@ -1330,8 +1422,8 @@ window.exportHistoryCSV = function() {
     expRows = expRows.filter(e => e.date <= historyToDate);
     incRows = incRows.filter(i => i.date <= historyToDate);
   }
-  if (historyCategoryFilter) {
-    expRows = expRows.filter(e => migrateCategory(e.category) === historyCategoryFilter);
+  if (historyCategoryFilters.length > 0) {
+    expRows = expRows.filter(e => historyCategoryFilters.includes(migrateCategory(e.category)));
     incRows = []; // category filter excludes incomes
   }
   if (historySearchText) {
@@ -1574,9 +1666,9 @@ function renderHistory() {
   }
 
   // Category filter (optional, applies only to expenses)
-  if (historyCategoryFilter) {
-    expenseItems = expenseItems.filter(e => migrateCategory(e.category) === historyCategoryFilter);
-    // When a specific category is filtered, hide all incomes (they don't have categories)
+  if (historyCategoryFilters.length > 0) {
+    expenseItems = expenseItems.filter(e => historyCategoryFilters.includes(migrateCategory(e.category)));
+    // When categories are filtered, hide all incomes (they don't have categories)
     incomeItems = [];
   }
 
@@ -1804,25 +1896,83 @@ window.clearSearch = function() {
   renderHistory();
 };
 
-window.onCategoryFilterChange = function(val) {
-  historyCategoryFilter = val;
-  renderHistory();
+// Multi-select category filter
+function renderCategoryFilterChips() {
+  const chipsArea = document.getElementById('categoryFilterChips');
+  if (!chipsArea) return;
+  if (historyCategoryFilters.length === 0) {
+    chipsArea.innerHTML = `<span class="placeholder">${t('filter_all_categories')}</span>`;
+  } else {
+    chipsArea.innerHTML = historyCategoryFilters.map(id => {
+      const c = getCat(id);
+      return `<span class="cat-chip">${c.icon} ${escapeHtml(catLabel(c))}</span>`;
+    }).join('');
+  }
+}
+
+// Backwards-compat function used by applyLang (kept name for safety)
+function populateCategoryFilter() {
+  renderCategoryFilterChips();
+}
+
+window.openCategoryMultiSelect = function() {
+  pendingCatMultiSelection = historyCategoryFilters.slice();
+  const list = document.getElementById('catMultiList');
+  list.innerHTML = CATEGORIES.map(c => {
+    const selected = pendingCatMultiSelection.includes(c.id);
+    return `<div class="multi-option ${selected ? 'selected' : ''}" data-cat="${c.id}" onclick="toggleCatMultiOption('${c.id}')">
+      <div class="check">${selected ? '✓' : ''}</div>
+      <span class="opt-icon">${c.icon}</span>
+      <span class="opt-label">${escapeHtml(catLabel(c))}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('catMultiModal').classList.add('open');
 };
 
-function populateCategoryFilter() {
-  const sel = document.getElementById('categoryFilter');
-  if (!sel) return;
-  const current = sel.value;
-  const options = [`<option value="">${t('filter_all_categories')}</option>`]
-    .concat(CATEGORIES.map(c => `<option value="${c.id}" ${c.id === current ? 'selected' : ''}>${c.icon} ${catLabel(c)}</option>`));
-  sel.innerHTML = options.join('');
-}
+window.closeCategoryMultiSelect = function() {
+  document.getElementById('catMultiModal').classList.remove('open');
+};
+
+window.onCatMultiBackdropClick = function(e) {
+  if (e.target.id === 'catMultiModal') closeCategoryMultiSelect();
+};
+
+window.toggleCatMultiOption = function(id) {
+  const idx = pendingCatMultiSelection.indexOf(id);
+  if (idx === -1) pendingCatMultiSelection.push(id);
+  else pendingCatMultiSelection.splice(idx, 1);
+  // Re-render just the changed option for snappy feel
+  const opt = document.querySelector(`.multi-option[data-cat="${id}"]`);
+  if (opt) {
+    const isSelected = pendingCatMultiSelection.includes(id);
+    opt.classList.toggle('selected', isSelected);
+    const check = opt.querySelector('.check');
+    if (check) check.textContent = isSelected ? '✓' : '';
+  }
+};
+
+window.catMultiClearAll = function() {
+  pendingCatMultiSelection = [];
+  // Re-render all checks
+  document.querySelectorAll('#catMultiList .multi-option').forEach(opt => {
+    opt.classList.remove('selected');
+    const check = opt.querySelector('.check');
+    if (check) check.textContent = '';
+  });
+};
+
+window.catMultiApply = function() {
+  historyCategoryFilters = pendingCatMultiSelection.slice();
+  renderCategoryFilterChips();
+  closeCategoryMultiSelect();
+  renderHistory();
+};
 
 window.applyHistoryFilters = function() {
   historyFromDate = document.getElementById('fromDateFilter').value;
   historyToDate = document.getElementById('toDateFilter').value;
   historySearchText = document.getElementById('searchInput').value;
-  historyCategoryFilter = document.getElementById('categoryFilter').value;
+  // historyCategoryFilters is already up-to-date via Apply in modal
   renderHistory();
   showToast(t('toast_filters_applied'));
 };
@@ -1831,12 +1981,12 @@ window.clearHistoryFilters = function() {
   historyFromDate = '';
   historyToDate = '';
   historySearchText = '';
-  historyCategoryFilter = '';
+  historyCategoryFilters = [];
   document.getElementById('fromDateFilter').value = '';
   document.getElementById('toDateFilter').value = '';
   document.getElementById('searchInput').value = '';
-  document.getElementById('categoryFilter').value = '';
   document.getElementById('searchClear').classList.remove('show');
+  renderCategoryFilterChips();
   renderHistory();
   showToast(t('toast_filters_cleared'));
 };
