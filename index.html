@@ -116,6 +116,66 @@
     .form-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 16px; padding: 12px 14px; outline: none; font-family: inherit; margin-bottom: 14px; -webkit-appearance: none; color-scheme: dark; }
     .form-input::placeholder { color: var(--dim); }
 
+    .form-select {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text); font-size: 16px;
+      padding: 12px 14px; outline: none; font-family: inherit; margin-bottom: 14px;
+      -webkit-appearance: none; color-scheme: dark;
+      background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+      background-position: calc(100% - 18px) 18px, calc(100% - 13px) 18px;
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+      cursor: pointer;
+    }
+
+    /* Search bar */
+    .search-bar {
+      position: relative; margin-bottom: 14px;
+    }
+    .search-input {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text); font-size: 15px;
+      padding: 12px 40px 12px 40px; outline: none; font-family: inherit;
+      -webkit-appearance: none; color-scheme: dark;
+    }
+    .search-input::placeholder { color: var(--dim); }
+    .search-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 14px; color: var(--muted); pointer-events: none;
+    }
+    .search-clear {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      background: var(--border); border: none; border-radius: 50%;
+      color: var(--text); width: 22px; height: 22px; cursor: pointer;
+      display: none; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+    }
+    .search-clear.show { display: flex; }
+
+    /* App footer feedback */
+    .app-footer {
+      margin-top: 32px; padding: 20px 16px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+    .footer-text {
+      font-size: 11px; color: var(--dim); margin-bottom: 12px;
+    }
+    .footer-icons {
+      display: flex; gap: 16px; justify-content: center; align-items: center;
+    }
+    .footer-icon-link {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none; transition: transform 0.15s;
+    }
+    .footer-icon-link:hover { transform: translateY(-2px); }
+    .footer-icon-link svg { width: 22px; height: 22px; }
+    .footer-icon-link.gmail { background: #EA4335; }
+    .footer-icon-link.linkedin { background: #0A66C2; }
+    .footer-icon-link.instagram { background: linear-gradient(45deg, #F58529, #DD2A7B, #8134AF, #515BD4); }
+    .footer-credit { font-size: 11px; color: var(--dim); margin-top: 12px; }
+
     .cat-select { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
     .cat-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border-radius: 12px; border: 2px solid var(--border); background: var(--surface2); cursor: pointer; transition: all 0.15s; font-size: 20px; }
     .cat-btn-label { font-size: 9px; font-weight: 600; color: var(--dim); text-align: center; line-height: 1.2; }
@@ -351,6 +411,15 @@
       <input type="number" class="form-input" id="fAmount" placeholder="0" inputmode="numeric" />
       <label class="form-label" data-i18n="label_category">Category</label>
       <div class="cat-select" id="catSelect"></div>
+      <label class="form-label" data-i18n="label_payment">Payment Method</label>
+      <select class="form-select" id="fPayment">
+        <option value="">—</option>
+        <option value="cash">💵 Cash</option>
+        <option value="upi">📱 UPI</option>
+        <option value="credit_card">💳 Credit Card</option>
+        <option value="debit_card">🏧 Debit Card</option>
+        <option value="bank_transfer">🏦 Bank Transfer</option>
+      </select>
       <label class="form-label" data-i18n="label_note">Note (optional)</label>
       <input type="text" class="form-input" id="fNote" placeholder="What did you spend on?" data-i18n-ph="placeholder_note" />
       <button class="submit-btn" id="submitBtn" onclick="handleSubmit()" data-i18n="btn_add_expense">Add Expense</button>
@@ -369,6 +438,16 @@
     </div>
 
     <div id="historyFilters" class="form-card" style="display:none; margin-bottom:12px;">
+      <label class="form-label" data-i18n="label_search">Search</label>
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="searchInput" placeholder="Search by keyword..." data-i18n-ph="placeholder_search" oninput="onSearchInput(this.value)" />
+        <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+      </div>
+      <label class="form-label" data-i18n="label_filter_category">Filter by Category</label>
+      <select class="form-select" id="categoryFilter" onchange="onCategoryFilterChange(this.value)">
+        <option value="" data-i18n="filter_all_categories">All Categories</option>
+      </select>
       <label class="form-label" data-i18n="label_from_date">From Date</label>
       <input type="date" class="form-input" id="fromDateFilter" />
       <label class="form-label" data-i18n="label_to_date">To Date</label>
@@ -380,6 +459,23 @@
 
     <div id="historySection" style="display:none">
       <div id="historyList"></div>
+    </div>
+
+    <!-- Footer / Feedback -->
+    <div class="app-footer">
+      <div class="footer-text" data-i18n="footer_feedback">Feedback or just say hi 👋</div>
+      <div class="footer-icons">
+        <a href="mailto:jainbwr3@gmail.com?subject=Kharcha%20App%20Feedback" class="footer-icon-link gmail" title="Email">
+          <svg viewBox="0 0 24 24" fill="white"><path d="M12 13.065L0 4.5h24L12 13.065zM0 6.435V19.5h24V6.435l-12 8.565L0 6.435z"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/in/himanshujain7/" target="_blank" rel="noopener" class="footer-icon-link linkedin" title="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="white"><path d="M19 0H5a5 5 0 00-5 5v14a5 5 0 005 5h14a5 5 0 005-5V5a5 5 0 00-5-5zM8 19H5V8h3v11zM6.5 6.732c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zM20 19h-3v-5.604c0-3.368-4-3.113-4 0V19h-3V8h3v1.765c1.396-2.586 7-2.777 7 2.476V19z"/></svg>
+        </a>
+        <a href="https://www.instagram.com/himanshujain7/" target="_blank" rel="noopener" class="footer-icon-link instagram" title="Instagram">
+          <svg viewBox="0 0 24 24" fill="white"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+      </div>
+      <div class="footer-credit" data-i18n="footer_credit">Made with ❤️ by Himanshu</div>
     </div>
   </div>
 </div>
@@ -494,10 +590,18 @@ const TRANSLATIONS = {
     toast_save_failed: "Save failed: ", toast_sync_error: "Sync error: ",
     expenses_count_one: "1 expense", expenses_count_many: "{n} expenses",
     income_prefix: "Income: +", balance_prefix_pos: "Balance: +", balance_prefix_neg: "Balance: -",
+    label_payment: "Payment Method", label_search: "Search", label_filter_category: "Filter by Category",
+    placeholder_search: "Search by keyword...",
+    filter_all_categories: "All Categories",
+    pm_cash: "💵 Cash", pm_upi: "📱 UPI", pm_credit_card: "💳 Credit Card", pm_debit_card: "🏧 Debit Card", pm_bank_transfer: "🏦 Bank Transfer",
+    footer_feedback: "Feedback or just say hi 👋",
+    footer_credit: "Made with ❤️ by Himanshu",
     // Categories
-    cat_food: "Food & Dining", cat_groceries: "Groceries", cat_investment: "Investment",
-    cat_transport: "Transport", cat_shopping: "Shopping", cat_health: "Health",
-    cat_entertainment: "Entertainment", cat_utilities: "Utilities", cat_education: "Education", cat_other: "Other",
+    cat_food: "Food & Dining", cat_cafe: "Cafe & Snacks", cat_groceries: "Groceries",
+    cat_transport: "Transport", cat_travel: "Travel", cat_rent_bills: "Rent & Bills",
+    cat_subscriptions: "Subscriptions", cat_shopping: "Shopping", cat_health: "Health & Medical",
+    cat_entertainment: "Entertainment", cat_investment: "Investment", cat_gifts: "Gifts & Donations",
+    cat_personal_care: "Personal Care", cat_education: "Education", cat_family: "Family", cat_other: "Other",
   },
 
   // ====== HINGLISH ======
@@ -560,9 +664,17 @@ const TRANSLATIONS = {
     toast_save_failed: "Save fail: ", toast_sync_error: "Sync error: ",
     expenses_count_one: "1 kharcha", expenses_count_many: "{n} kharche",
     income_prefix: "Income: +", balance_prefix_pos: "Balance: +", balance_prefix_neg: "Balance: -",
-    cat_food: "Khana", cat_groceries: "Groceries", cat_investment: "Investment",
-    cat_transport: "Transport", cat_shopping: "Shopping", cat_health: "Health",
-    cat_entertainment: "Entertainment", cat_utilities: "Bills", cat_education: "Padhai", cat_other: "Other",
+    label_payment: "Payment Method", label_search: "Search Karo", label_filter_category: "Category Filter",
+    placeholder_search: "Keyword likho...",
+    filter_all_categories: "Sab Categories",
+    pm_cash: "💵 Cash", pm_upi: "📱 UPI", pm_credit_card: "💳 Credit Card", pm_debit_card: "🏧 Debit Card", pm_bank_transfer: "🏦 Bank Transfer",
+    footer_feedback: "Feedback ya bas hi bolo 👋",
+    footer_credit: "Banayi ❤️ se — Himanshu ne",
+    cat_food: "Khana", cat_cafe: "Chai & Snacks", cat_groceries: "Groceries",
+    cat_transport: "Transport", cat_travel: "Travel", cat_rent_bills: "Rent & Bills",
+    cat_subscriptions: "Subscriptions", cat_shopping: "Shopping", cat_health: "Health",
+    cat_entertainment: "Entertainment", cat_investment: "Investment", cat_gifts: "Gifts",
+    cat_personal_care: "Personal Care", cat_education: "Padhai", cat_family: "Family", cat_other: "Other",
   },
 
   // ====== HINDI ======
@@ -625,9 +737,17 @@ const TRANSLATIONS = {
     toast_save_failed: "सहेजने में विफल: ", toast_sync_error: "सिंक त्रुटि: ",
     expenses_count_one: "1 खर्चा", expenses_count_many: "{n} खर्चे",
     income_prefix: "आय: +", balance_prefix_pos: "शेष: +", balance_prefix_neg: "शेष: -",
-    cat_food: "खाना", cat_groceries: "किराना", cat_investment: "निवेश",
-    cat_transport: "परिवहन", cat_shopping: "खरीदारी", cat_health: "स्वास्थ्य",
-    cat_entertainment: "मनोरंजन", cat_utilities: "बिल", cat_education: "शिक्षा", cat_other: "अन्य",
+    label_payment: "भुगतान का तरीका", label_search: "खोजें", label_filter_category: "श्रेणी से छानें",
+    placeholder_search: "शब्द से खोजें...",
+    filter_all_categories: "सभी श्रेणियाँ",
+    pm_cash: "💵 नकद", pm_upi: "📱 UPI", pm_credit_card: "💳 क्रेडिट कार्ड", pm_debit_card: "🏧 डेबिट कार्ड", pm_bank_transfer: "🏦 बैंक स्थानांतरण",
+    footer_feedback: "फ़ीडबैक या बस नमस्ते 👋",
+    footer_credit: "❤️ से बनाया — हिमांशु",
+    cat_food: "खाना", cat_cafe: "चाय व नाश्ता", cat_groceries: "किराना",
+    cat_transport: "परिवहन", cat_travel: "यात्रा", cat_rent_bills: "किराया व बिल",
+    cat_subscriptions: "सब्सक्रिप्शन", cat_shopping: "खरीदारी", cat_health: "स्वास्थ्य",
+    cat_entertainment: "मनोरंजन", cat_investment: "निवेश", cat_gifts: "उपहार",
+    cat_personal_care: "व्यक्तिगत देखभाल", cat_education: "शिक्षा", cat_family: "परिवार", cat_other: "अन्य",
   }
 };
 
@@ -664,6 +784,9 @@ function applyLang() {
   if (typeof buildCatSelect === 'function') {
     try { buildCatSelect(); } catch (e) {}
   }
+  if (typeof populateCategoryFilter === 'function') {
+    try { populateCategoryFilter(); } catch (e) {}
+  }
 }
 
 window.setLang = function(lang) {
@@ -679,19 +802,38 @@ document.addEventListener('DOMContentLoaded', applyLang);
 // ===== End i18n =====
 
 const CATEGORIES = [
-  { id: "food",          labelKey: "cat_food",          icon: "🍽️", color: "#FF6B6B" },
+  { id: "food",          labelKey: "cat_food",          icon: "🍕", color: "#FF6B6B" },
+  { id: "cafe",          labelKey: "cat_cafe",          icon: "☕", color: "#B88A5F" },
   { id: "groceries",     labelKey: "cat_groceries",     icon: "🛒", color: "#7ED957" },
-  { id: "investment",    labelKey: "cat_investment",    icon: "📈", color: "#00C2A8" },
-  { id: "transport",     labelKey: "cat_transport",     icon: "🚗",  color: "#4ECDC4" },
+  { id: "transport",     labelKey: "cat_transport",     icon: "🚖", color: "#4ECDC4" },
+  { id: "travel",        labelKey: "cat_travel",        icon: "✈️", color: "#5DADE2" },
+  { id: "rent_bills",    labelKey: "cat_rent_bills",    icon: "🏠", color: "#FFB347" },
+  { id: "subscriptions", labelKey: "cat_subscriptions", icon: "📱", color: "#9B59B6" },
   { id: "shopping",      labelKey: "cat_shopping",      icon: "🛍️", color: "#FFE66D" },
-  { id: "health",        labelKey: "cat_health",        icon: "💊",  color: "#A8E6CF" },
-  { id: "entertainment", labelKey: "cat_entertainment", icon: "🎬",  color: "#C9B1FF" },
-  { id: "utilities",     labelKey: "cat_utilities",     icon: "💡",  color: "#FFB347" },
-  { id: "education",     labelKey: "cat_education",     icon: "📚",  color: "#87CEEB" },
-  { id: "other",         labelKey: "cat_other",         icon: "📦",  color: "#D3D3D3" },
+  { id: "health",        labelKey: "cat_health",        icon: "💊", color: "#A8E6CF" },
+  { id: "entertainment", labelKey: "cat_entertainment", icon: "🎬", color: "#C9B1FF" },
+  { id: "investment",    labelKey: "cat_investment",    icon: "📈", color: "#00C2A8" },
+  { id: "gifts",         labelKey: "cat_gifts",         icon: "🎁", color: "#FF8FAB" },
+  { id: "personal_care", labelKey: "cat_personal_care", icon: "💇", color: "#F8B195" },
+  { id: "education",     labelKey: "cat_education",     icon: "📚", color: "#87CEEB" },
+  { id: "family",        labelKey: "cat_family",        icon: "👨‍👩‍👧", color: "#E91E63" },
+  { id: "other",         labelKey: "cat_other",         icon: "📦", color: "#D3D3D3" },
 ];
 // Helper to get translated label
 function catLabel(c) { return t(c.labelKey); }
+
+// Migration map: old category ids → new category ids
+// Used to silently migrate existing expenses to new category system
+const CATEGORY_MIGRATION = {
+  // Old IDs that don't exist in new list → map to closest match
+  "utilities": "rent_bills",
+  // "food", "groceries", "transport", "shopping", "health", "entertainment",
+  // "investment", "education", "other" → stay same (already in new list)
+};
+
+function migrateCategory(oldCatId) {
+  return CATEGORY_MIGRATION[oldCatId] || oldCatId;
+}
 
 let expenses = [];
 let incomes = [];
@@ -705,6 +847,8 @@ let selectedCat = 'food';
 let confirmDeleteId = null;
 let historyFromDate = '';
 let historyToDate = '';
+let historySearchText = '';
+let historyCategoryFilter = '';
 
 let currentUser = null;
 let isGuestMode = false;
@@ -738,7 +882,9 @@ function endOfWeek(d) {
   return `${y}-${m}-${day}`;
 }
 
-function getCat(id) { return CATEGORIES.find(c => c.id === id) || CATEGORIES[9]; }
+function getCat(id) {
+  return CATEGORIES.find(c => c.id === id) || CATEGORIES.find(c => c.id === 'other') || CATEGORIES[CATEGORIES.length - 1];
+}
 
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -1137,17 +1283,17 @@ window.onDateChange = function(val) { selectedDate = val || todayStr(); render()
 
 function buildCatSelect() {
   const el = document.getElementById('catSelect');
-  el.innerHTML = '';
-  CATEGORIES.forEach(c => {
-    const btn = document.createElement('button');
-    btn.className = 'cat-btn' + (c.id === selectedCat ? ' cat-active' : '');
-    btn.style.borderColor = c.id === selectedCat ? c.color : '#2A2A3A';
-    btn.style.background = c.id === selectedCat ? c.color + '20' : '#0F0F18';
-    btn.innerHTML = `<span>${c.icon}</span><span class="cat-btn-label" style="color:${c.id === selectedCat ? c.color : '#555568'}">${catLabel(c).split(' ')[0]}</span>`;
-    btn.onclick = () => { selectedCat = c.id; buildCatSelect(); };
-    el.appendChild(btn);
-  });
+  if (!el) return;
+  // Build native <select> dropdown — compact, single line
+  const options = CATEGORIES.map(c =>
+    `<option value="${c.id}" ${c.id === selectedCat ? 'selected' : ''}>${c.icon}  ${catLabel(c)}</option>`
+  ).join('');
+  el.innerHTML = `<select class="form-select" id="catSelectDropdown" onchange="onCatSelectChange(this.value)">${options}</select>`;
 }
+
+window.onCatSelectChange = function(val) {
+  selectedCat = val;
+};
 
 window.saveOpeningBalance = function() {
   const val = parseFloat(document.getElementById('openingBalanceInput').value);
@@ -1173,7 +1319,7 @@ window.exportBackup = function() {
 };
 
 window.exportHistoryCSV = function() {
-  // Build filtered lists (respect current From/To filters)
+  // Build filtered lists (respect all four filters)
   let expRows = expenses.slice();
   let incRows = incomes.slice();
   if (historyFromDate) {
@@ -1184,53 +1330,62 @@ window.exportHistoryCSV = function() {
     expRows = expRows.filter(e => e.date <= historyToDate);
     incRows = incRows.filter(i => i.date <= historyToDate);
   }
+  if (historyCategoryFilter) {
+    expRows = expRows.filter(e => migrateCategory(e.category) === historyCategoryFilter);
+    incRows = []; // category filter excludes incomes
+  }
+  if (historySearchText) {
+    const q = historySearchText.toLowerCase().trim();
+    if (q) {
+      expRows = expRows.filter(e => {
+        const cat = getCat(migrateCategory(e.category));
+        const haystack = [
+          (e.note || ''), catLabel(cat),
+          (TRANSLATIONS.en[cat.labelKey] || ''),
+          (TRANSLATIONS.hin[cat.labelKey] || ''),
+          (TRANSLATIONS.hi[cat.labelKey] || ''),
+          paymentLabel(e.paymentMethod)
+        ].join(' ').toLowerCase();
+        return haystack.includes(q);
+      });
+      incRows = incRows.filter(i => (i.source || '').toLowerCase().includes(q));
+    }
+  }
 
   if (expRows.length === 0 && incRows.length === 0) {
     showToast(t('toast_no_entries'));
     return;
   }
 
-  // CSV escape helper — wraps in quotes if needed, escapes internal quotes
+  // CSV escape helper
   function csvCell(v) {
     if (v == null) return '';
     const s = String(v);
-    if (/[",\n\r]/.test(s)) {
-      return '"' + s.replace(/"/g, '""') + '"';
-    }
+    if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
     return s;
   }
 
   const rows = [];
-  // Header
-  rows.push(['Date', 'Type', 'Category / Source', 'Note', 'Amount (INR)', 'Sign'].map(csvCell).join(','));
+  rows.push(['Date', 'Type', 'Category / Source', 'Note', 'Payment Method', 'Amount (INR)', 'Sign'].map(csvCell).join(','));
 
-  // Expense rows
   expRows.forEach(e => {
-    const cat = getCat(e.category);
+    const cat = getCat(migrateCategory(e.category));
     rows.push([
-      e.date,
-      'Expense',
-      catLabel(cat),
+      e.date, 'Expense', catLabel(cat),
       e.note || '',
-      e.amount,
-      '-'
+      paymentLabel(e.paymentMethod) || '',
+      e.amount, '-'
     ].map(csvCell).join(','));
   });
 
-  // Income rows
   incRows.forEach(i => {
     rows.push([
-      i.date,
-      'Income',
-      i.source || 'Income',
-      '',
-      i.amount,
-      '+'
+      i.date, 'Income', i.source || 'Income',
+      '', '',
+      i.amount, '+'
     ].map(csvCell).join(','));
   });
 
-  // Sort by date (newest first)
-  // (header stays at top: sort only rows after [0])
   const header = rows.shift();
   rows.sort((a, b) => {
     const da = a.split(',')[0].replace(/"/g, '');
@@ -1238,17 +1393,15 @@ window.exportHistoryCSV = function() {
     return db.localeCompare(da);
   });
 
-  // Summary footer
   const totalExp = expRows.reduce((s, e) => s + e.amount, 0);
   const totalInc = incRows.reduce((s, i) => s + i.amount, 0);
   const net = totalInc - totalExp;
   rows.push('');
-  rows.push(['', '', '', 'Total Income', totalInc, '+'].map(csvCell).join(','));
-  rows.push(['', '', '', 'Total Expense', totalExp, '-'].map(csvCell).join(','));
-  rows.push(['', '', '', 'Net Balance', Math.abs(net), net >= 0 ? '+' : '-'].map(csvCell).join(','));
+  rows.push(['', '', '', '', 'Total Income', totalInc, '+'].map(csvCell).join(','));
+  rows.push(['', '', '', '', 'Total Expense', totalExp, '-'].map(csvCell).join(','));
+  rows.push(['', '', '', '', 'Net Balance', Math.abs(net), net >= 0 ? '+' : '-'].map(csvCell).join(','));
 
-  const csv = '\uFEFF' + [header, ...rows].join('\n'); // BOM for Excel UTF-8 compatibility
-
+  const csv = '\uFEFF' + [header, ...rows].join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -1327,7 +1480,7 @@ function renderSummary() {
   netEl.style.color = net >= 0 ? '#4ADE80' : '#FF6B6B';
 
   const totals = {};
-  filtered.forEach(e => { totals[e.category] = (totals[e.category] || 0) + e.amount; });
+  filtered.forEach(e => { totals[migrateCategory(e.category)] = (totals[migrateCategory(e.category)] || 0) + e.amount; });
 
   const grid = document.getElementById('catGrid');
   grid.innerHTML = '';
@@ -1346,7 +1499,7 @@ function renderSummary() {
 function renderChart() {
   const filtered = getFiltered();
   const totals = {};
-  filtered.forEach(e => { totals[e.category] = (totals[e.category] || 0) + e.amount; });
+  filtered.forEach(e => { totals[migrateCategory(e.category)] = (totals[migrateCategory(e.category)] || 0) + e.amount; });
 
   const items = CATEGORIES.filter(c => totals[c.id]).map(c => ({ label: catLabel(c), value: totals[c.id], color: c.color }));
   const container = document.getElementById('chartContainer');
@@ -1396,10 +1549,21 @@ function renderChart() {
     </div>`;
 }
 
+// Payment method labels (used in display + CSV)
+function paymentLabel(pmId) {
+  if (!pmId) return '';
+  const map = {
+    cash: 'pm_cash', upi: 'pm_upi',
+    credit_card: 'pm_credit_card', debit_card: 'pm_debit_card', bank_transfer: 'pm_bank_transfer'
+  };
+  return map[pmId] ? t(map[pmId]) : '';
+}
+
 function renderHistory() {
   let expenseItems = expenses.map(e => ({...e, type:'expense'}));
   let incomeItems = incomes.map(i => ({...i, type:'income'}));
 
+  // Date range filter (optional)
   if (historyFromDate) {
     expenseItems = expenseItems.filter(e => e.date >= historyFromDate);
     incomeItems = incomeItems.filter(i => i.date >= historyFromDate);
@@ -1407,6 +1571,37 @@ function renderHistory() {
   if (historyToDate) {
     expenseItems = expenseItems.filter(e => e.date <= historyToDate);
     incomeItems = incomeItems.filter(i => i.date <= historyToDate);
+  }
+
+  // Category filter (optional, applies only to expenses)
+  if (historyCategoryFilter) {
+    expenseItems = expenseItems.filter(e => migrateCategory(e.category) === historyCategoryFilter);
+    // When a specific category is filtered, hide all incomes (they don't have categories)
+    incomeItems = [];
+  }
+
+  // Keyword search (optional) — searches note, category label, source, payment method
+  if (historySearchText) {
+    const q = historySearchText.toLowerCase().trim();
+    if (q) {
+      expenseItems = expenseItems.filter(e => {
+        const cat = getCat(migrateCategory(e.category));
+        const haystack = [
+          (e.note || ''),
+          catLabel(cat),
+          // Match against all three languages for category, so search works regardless of current lang
+          (TRANSLATIONS.en[cat.labelKey] || ''),
+          (TRANSLATIONS.hin[cat.labelKey] || ''),
+          (TRANSLATIONS.hi[cat.labelKey] || ''),
+          paymentLabel(e.paymentMethod),
+        ].join(' ').toLowerCase();
+        return haystack.includes(q);
+      });
+      incomeItems = incomeItems.filter(i => {
+        const haystack = (i.source || '').toLowerCase();
+        return haystack.includes(q);
+      });
+    }
   }
 
   const filtered = [...expenseItems, ...incomeItems].slice().sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
@@ -1442,7 +1637,7 @@ function renderHistory() {
       </div>`;
     }
 
-    const cat = getCat(exp.category);
+    const cat = getCat(migrateCategory(exp.category));
     if (confirmDeleteId === exp.id) {
       return `<div class="confirm-box">
         <span class="confirm-text">Delete "${escapeHtml(exp.note || catLabel(cat))}"?</span>
@@ -1450,11 +1645,12 @@ function renderHistory() {
         <button class="confirm-no" onclick="cancelDeleteConfirm()">Cancel</button>
       </div>`;
     }
+    const pm = paymentLabel(exp.paymentMethod);
     return `<div class="expense-item">
       <div class="exp-icon" style="background:${cat.color}20">${cat.icon}</div>
       <div class="exp-info">
         <div class="exp-note">${escapeHtml(exp.note || catLabel(cat))}</div>
-        <div class="exp-meta">${new Date(exp.date + 'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })} · ${catLabel(cat)}</div>
+        <div class="exp-meta">${new Date(exp.date + 'T00:00:00').toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })} · ${catLabel(cat)}${pm ? ' · ' + escapeHtml(pm) : ''}</div>
       </div>
       <div class="exp-right">
         <span class="exp-amt">−${formatINR(exp.amount)}</span>
@@ -1472,16 +1668,20 @@ window.handleSubmit = function() {
   if (!amount || amount <= 0) { showToast(t('toast_invalid_amount')); return; }
   const date = document.getElementById('fDate').value || todayStr();
   const note = document.getElementById('fNote').value.trim();
+  const paymentMethod = document.getElementById('fPayment').value || '';
+
+  // Ensure new category id (handle if user somehow has old id pre-migration)
+  const categoryId = migrateCategory(selectedCat);
 
   if (editId !== null) {
-    expenses = expenses.map(e => e.id === editId ? { ...e, date, amount, category: selectedCat, note } : e);
+    expenses = expenses.map(e => e.id === editId ? { ...e, date, amount, category: categoryId, note, paymentMethod } : e);
     editId = null;
     document.getElementById('submitBtn').textContent = t('btn_add_expense');
     document.getElementById('cancelBtn').style.display = 'none';
     document.getElementById('tab-add').textContent = t('tab_add_expense');
     showToast(t('toast_expense_updated'));
   } else {
-    expenses.unshift({ id: Date.now(), date, amount, category: selectedCat, note });
+    expenses.unshift({ id: Date.now(), date, amount, category: categoryId, note, paymentMethod });
     showToast(t('toast_expense_added'));
   }
 
@@ -1489,6 +1689,7 @@ window.handleSubmit = function() {
   document.getElementById('fAmount').value = '';
   document.getElementById('fNote').value = '';
   document.getElementById('fDate').value = todayStr();
+  document.getElementById('fPayment').value = '';
   selectedCat = 'food'; buildCatSelect();
   render();
   setTab('history');
@@ -1498,10 +1699,11 @@ window.startEdit = function(id) {
   const exp = expenses.find(e => e.id === id);
   if (!exp) return;
   editId = id;
-  selectedCat = exp.category;
+  selectedCat = migrateCategory(exp.category);
   document.getElementById('fDate').value = exp.date;
   document.getElementById('fAmount').value = exp.amount;
   document.getElementById('fNote').value = exp.note || '';
+  document.getElementById('fPayment').value = exp.paymentMethod || '';
   buildCatSelect();
   document.getElementById('submitBtn').textContent = t('btn_update_expense');
   document.getElementById('cancelBtn').style.display = 'block';
@@ -1515,6 +1717,7 @@ window.cancelEdit = function() {
   document.getElementById('fAmount').value = '';
   document.getElementById('fNote').value = '';
   document.getElementById('fDate').value = todayStr();
+  document.getElementById('fPayment').value = '';
   selectedCat = 'food'; buildCatSelect();
   document.getElementById('submitBtn').textContent = t('btn_add_expense');
   document.getElementById('cancelBtn').style.display = 'none';
@@ -1586,9 +1789,40 @@ window.doDeleteIncome = function(id) {
   showToast(t('toast_income_deleted'));
 };
 
+window.onSearchInput = function(val) {
+  historySearchText = val;
+  const clear = document.getElementById('searchClear');
+  if (clear) clear.classList.toggle('show', !!val);
+  renderHistory();
+};
+
+window.clearSearch = function() {
+  historySearchText = '';
+  const input = document.getElementById('searchInput');
+  if (input) input.value = '';
+  document.getElementById('searchClear').classList.remove('show');
+  renderHistory();
+};
+
+window.onCategoryFilterChange = function(val) {
+  historyCategoryFilter = val;
+  renderHistory();
+};
+
+function populateCategoryFilter() {
+  const sel = document.getElementById('categoryFilter');
+  if (!sel) return;
+  const current = sel.value;
+  const options = [`<option value="">${t('filter_all_categories')}</option>`]
+    .concat(CATEGORIES.map(c => `<option value="${c.id}" ${c.id === current ? 'selected' : ''}>${c.icon} ${catLabel(c)}</option>`));
+  sel.innerHTML = options.join('');
+}
+
 window.applyHistoryFilters = function() {
   historyFromDate = document.getElementById('fromDateFilter').value;
   historyToDate = document.getElementById('toDateFilter').value;
+  historySearchText = document.getElementById('searchInput').value;
+  historyCategoryFilter = document.getElementById('categoryFilter').value;
   renderHistory();
   showToast(t('toast_filters_applied'));
 };
@@ -1596,8 +1830,13 @@ window.applyHistoryFilters = function() {
 window.clearHistoryFilters = function() {
   historyFromDate = '';
   historyToDate = '';
+  historySearchText = '';
+  historyCategoryFilter = '';
   document.getElementById('fromDateFilter').value = '';
   document.getElementById('toDateFilter').value = '';
+  document.getElementById('searchInput').value = '';
+  document.getElementById('categoryFilter').value = '';
+  document.getElementById('searchClear').classList.remove('show');
   renderHistory();
   showToast(t('toast_filters_cleared'));
 };
@@ -1613,6 +1852,7 @@ function init() {
   document.getElementById('fDate').value = todayStr();
   document.getElementById('iDate').value = todayStr();
   buildCatSelect();
+  populateCategoryFilter();
   render();
 }
 
