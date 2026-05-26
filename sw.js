@@ -1,6 +1,6 @@
 // Kharcha Service Worker — caches app shell + Firebase SDK for offline use
 // Bump CACHE_VERSION to force re-cache after updates
-const CACHE_VERSION = 'kharcha-v8';
+const CACHE_VERSION = 'kharcha-v10';
 const APP_SHELL = [
   './',
   './index.html'
