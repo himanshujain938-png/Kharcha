@@ -35,15 +35,15 @@
 
     .container {
       max-width: 480px; margin: 0 auto;
-      padding: 24px 16px 110px;
-      padding-top: calc(24px + env(safe-area-inset-top, 0px));
-      padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+      padding: 16px 14px 100px;
+      padding-top: calc(16px + env(safe-area-inset-top, 0px));
+      padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
       position: relative; z-index: 1;
     }
 
-    .header-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .header-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
     .header-bar h1 {
-      font-size: 26px; font-weight: 800; letter-spacing: -0.5px;
+      font-size: 22px; font-weight: 800; letter-spacing: -0.5px;
       background: linear-gradient(135deg, #fff 30%, #9D8FFF);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
@@ -84,45 +84,45 @@
       border-bottom: 1px solid var(--border); margin-bottom: 4px; word-break: break-all;
     }
 
-    .subtitle { font-size: 13px; color: var(--muted); margin-top: 4px; margin-bottom: 24px; }
+    .subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; margin-bottom: 16px; }
 
-    .view-toggle { display: flex; gap: 6px; background: var(--surface); border-radius: 14px; padding: 5px; margin-bottom: 16px; }
-    .view-btn { flex: 1; padding: 8px 0; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--dim); font-family: inherit; }
+    .view-toggle { display: flex; gap: 5px; background: var(--surface); border-radius: 12px; padding: 4px; margin-bottom: 12px; }
+    .view-btn { flex: 1; padding: 6px 0; border: none; border-radius: 9px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: var(--dim); font-family: inherit; }
     .view-btn.active { background: var(--purple); color: #fff; }
 
-    .date-nav { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-    .date-nav-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; color: #aaa; font-size: 20px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .date-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 13px; font-weight: 600; padding: 10px 12px; outline: none; text-align: center; font-family: inherit; -webkit-appearance: none; color-scheme: dark; }
+    .date-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .date-nav-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; color: #aaa; font-size: 18px; width: 36px; height: 36px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .date-input { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 9px; color: var(--text); font-size: 12px; font-weight: 600; padding: 8px 10px; outline: none; text-align: center; font-family: inherit; -webkit-appearance: none; color-scheme: dark; }
 
-    .summary-card { background: linear-gradient(135deg, #1E1B3A 0%, #16141F 100%); border: 1px solid rgba(109,89,255,0.2); border-radius: 20px; padding: 20px 22px; margin-bottom: 18px; }
-    .period-label { font-size: 13px; color: var(--purple-light); font-weight: 600; margin-bottom: 6px; }
-    .total-amount { font-size: 36px; font-weight: 800; letter-spacing: -1px; color: #fff; line-height: 1; }
-    .exp-count { font-size: 12px; color: var(--dim); margin-top: 4px; }
-    .income-amount { font-size: 18px; font-weight: 700; color: var(--green); margin-top: 10px; }
-    .net-amount { font-size: 16px; font-weight: 700; margin-top: 6px; }
+    .summary-card { background: linear-gradient(135deg, #1E1B3A 0%, #16141F 100%); border: 1px solid rgba(109,89,255,0.2); border-radius: 16px; padding: 14px 16px; margin-bottom: 12px; }
+    .period-label { font-size: 12px; color: var(--purple-light); font-weight: 600; margin-bottom: 4px; }
+    .total-amount { font-size: 30px; font-weight: 800; letter-spacing: -1px; color: #fff; line-height: 1; }
+    .exp-count { font-size: 11px; color: var(--dim); margin-top: 3px; }
+    .income-amount { font-size: 15px; font-weight: 700; color: var(--green); margin-top: 8px; }
+    .net-amount { font-size: 14px; font-weight: 700; margin-top: 4px; }
 
-    .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
-    .cat-card { background: var(--surface); border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
-    .cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .cat-name { font-size: 11px; color: #888898; line-height: 1.3; }
-    .cat-amt { font-size: 14px; font-weight: 700; color: var(--text); }
+    .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    .cat-card { background: var(--surface); border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; gap: 8px; }
+    .cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .cat-name { font-size: 10px; color: #888898; line-height: 1.3; }
+    .cat-amt { font-size: 13px; font-weight: 700; color: var(--text); }
 
-    .tabs { display: flex; border-bottom: 1px solid #1E1E2E; margin-bottom: 18px; }
-    .tab-btn { flex: 1; padding: 12px 0; border: none; background: transparent; color: var(--dim); font-weight: 600; font-size: 14px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; font-family: inherit; }
+    .tabs { display: flex; border-bottom: 1px solid #1E1E2E; margin-bottom: 14px; }
+    .tab-btn { flex: 1; padding: 10px 0; border: none; background: transparent; color: var(--dim); font-weight: 600; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; font-family: inherit; }
     .tab-btn.active { color: var(--purple); border-bottom-color: var(--purple); }
 
-    .form-card { background: var(--surface); border-radius: 20px; padding: 20px; margin-bottom: 16px; }
-    .form-label { font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
-    .form-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); font-size: 16px; padding: 12px 14px; outline: none; font-family: inherit; margin-bottom: 14px; -webkit-appearance: none; color-scheme: dark; }
+    .form-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+    .form-label { font-size: 10px; font-weight: 600; color: var(--muted); margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 15px; padding: 10px 12px; outline: none; font-family: inherit; margin-bottom: 12px; -webkit-appearance: none; color-scheme: dark; }
     .form-input::placeholder { color: var(--dim); }
 
     .form-select {
       width: 100%; background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 12px; color: var(--text); font-size: 16px;
-      padding: 12px 14px; outline: none; font-family: inherit; margin-bottom: 14px;
+      border-radius: 10px; color: var(--text); font-size: 15px;
+      padding: 10px 12px; outline: none; font-family: inherit; margin-bottom: 12px;
       -webkit-appearance: none; color-scheme: dark;
       background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
-      background-position: calc(100% - 18px) 18px, calc(100% - 13px) 18px;
+      background-position: calc(100% - 18px) 16px, calc(100% - 13px) 16px;
       background-size: 5px 5px, 5px 5px;
       background-repeat: no-repeat;
       cursor: pointer;
@@ -252,16 +252,16 @@
     .cat-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 4px; border-radius: 12px; border: 2px solid var(--border); background: var(--surface2); cursor: pointer; transition: all 0.15s; font-size: 20px; }
     .cat-btn-label { font-size: 9px; font-weight: 600; color: var(--dim); text-align: center; line-height: 1.2; }
 
-    .submit-btn { width: 100%; padding: 14px; border: none; border-radius: 14px; background: linear-gradient(135deg, #6D59FF, #9B8FFF); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; letter-spacing: 0.3px; margin-top: 2px; }
-    .cancel-btn { width: 100%; padding: 14px; border: none; border-radius: 14px; background: var(--border); color: #aaa; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 8px; }
+    .submit-btn { width: 100%; padding: 12px; border: none; border-radius: 12px; background: linear-gradient(135deg, #6D59FF, #9B8FFF); color: #fff; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; letter-spacing: 0.3px; margin-top: 2px; }
+    .cancel-btn { width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--border); color: #aaa; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; margin-top: 6px; }
 
-    .expense-item { background: var(--surface); border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
-    .exp-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .expense-item { background: var(--surface); border-radius: 14px; padding: 11px 13px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+    .exp-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
     .exp-info { flex: 1; min-width: 0; }
-    .exp-note { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .exp-meta { font-size: 12px; color: var(--dim); }
-    .exp-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
-    .exp-amt { font-size: 15px; font-weight: 800; color: var(--red); }
+    .exp-note { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .exp-meta { font-size: 11px; color: var(--dim); }
+    .exp-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+    .exp-amt { font-size: 14px; font-weight: 800; color: var(--red); }
     .action-btns { display: flex; gap: 6px; }
     .edit-btn { background: rgba(109,89,255,0.15); border: none; border-radius: 8px; color: #9D8FFF; font-size: 13px; padding: 5px 8px; cursor: pointer; }
     .del-btn { background: rgba(255,107,107,0.15); border: none; border-radius: 8px; color: var(--red); font-size: 13px; padding: 5px 8px; cursor: pointer; }
@@ -277,13 +277,27 @@
     .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: #2A2A3A; color: var(--text); border-radius: 12px; padding: 12px 20px; font-size: 13px; font-weight: 600; transition: transform 0.3s ease; z-index: 999; max-width: 90vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
     .toast.show { transform: translateX(-50%) translateY(0); }
 
-    .pie-wrap { display: flex; align-items: center; gap: 16px; margin-top: 12px; }
-    .pie-svg { flex-shrink: 0; }
-    .pie-legend { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-    .pie-legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-    .pie-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
-    .pie-legend-label { color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .pie-legend-val { color: var(--muted); font-weight: 600; }
+    /* Insights – horizontal bar chart */
+    .insights-summary-row {
+      display: flex; gap: 8px; margin-bottom: 14px;
+    }
+    .insights-summary-card {
+      flex: 1; background: var(--surface2); border-radius: 12px;
+      padding: 10px 12px; border: 1px solid var(--border);
+    }
+    .isc-label { font-size: 10px; color: var(--muted); font-weight: 600; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .isc-value { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.3; }
+    .isc-sub { font-size: 11px; color: var(--dim); margin-top: 2px; }
+
+    .insights-bar-list { display: flex; flex-direction: column; gap: 9px; }
+    .insights-bar-row { display: flex; align-items: center; gap: 8px; }
+    .ibr-icon { font-size: 16px; flex-shrink: 0; width: 22px; text-align: center; }
+    .ibr-track { flex: 1; }
+    .ibr-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+    .ibr-name { font-size: 12px; font-weight: 600; color: var(--text); }
+    .ibr-meta { font-size: 11px; color: var(--muted); }
+    .ibr-bar-bg { height: 7px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+    .ibr-bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
 
     .login-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 24px; z-index: 1000; }
     .login-overlay.hidden { display: none; }
@@ -322,6 +336,33 @@
       background: none; color: var(--dim);
       padding: 4px 6px; font-weight: 600;
     }
+
+    /* Header language badge */
+    .header-lang-badge {
+      position: relative; display: flex; align-items: center; gap: 4px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 5px 8px;
+      font-size: 11px; font-weight: 700; color: var(--text);
+      cursor: pointer; user-select: none; flex-shrink: 0;
+      letter-spacing: 0.2px;
+    }
+    .header-lang-badge .hlb-arrow { font-size: 9px; color: var(--muted); }
+    .header-lang-dropdown {
+      position: absolute; top: calc(100% + 6px); right: 0;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 4px; min-width: 90px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+      z-index: 60; display: none;
+    }
+    .header-lang-dropdown.open { display: block; }
+    .hld-btn {
+      display: block; width: 100%; padding: 8px 10px;
+      background: none; border: none; border-radius: 7px;
+      color: var(--text); font-size: 12px; font-weight: 600;
+      cursor: pointer; text-align: left; font-family: inherit;
+    }
+    .hld-btn:hover { background: var(--surface2); }
+    .hld-btn.active { color: var(--purple); }
 
     /* Language switcher */
     .lang-switcher {
@@ -399,7 +440,17 @@
   <div class="container">
     <div class="header-bar">
       <h1>💸 Kharcha</h1>
-      <div class="user-chip" id="userChip" onclick="toggleUserMenu(event)">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="header-lang-badge" id="headerLangBadge" onclick="toggleHeaderLangDropdown(event)">
+          <span id="headerLangLabel">🌐 EN</span>
+          <span class="hlb-arrow">▾</span>
+          <div class="header-lang-dropdown" id="headerLangDropdown">
+            <button class="hld-btn" data-lang="en" onclick="setLangFromHeader('en',event)">EN</button>
+            <button class="hld-btn" data-lang="hin" onclick="setLangFromHeader('hin',event)">HIN</button>
+            <button class="hld-btn" data-lang="hi" onclick="setLangFromHeader('hi',event)">हिं</button>
+          </div>
+        </div>
+        <div class="user-chip" id="userChip" onclick="toggleUserMenu(event)">
         <span class="sync-status" id="syncStatus">☁ Synced</span>
         <div class="avatar" id="userAvatar">U</div>
         <div class="user-menu" id="userMenu">
@@ -415,6 +466,7 @@
           </div>
           <div class="menu-item" onclick="signOutUser()" style="color: var(--red);" id="menuSignOut" data-i18n="menu_sign_out">🚪 Sign out</div>
         </div>
+      </div>
       </div>
     </div>
     <p class="subtitle" data-i18n="subtitle">Your daily expense tracker</p>
@@ -444,9 +496,9 @@
       <div class="total-amount" id="totalAmount">₹0</div>
       <div class="exp-count" id="expCount">0 expenses</div>
 
-      <div style="margin-top:16px;background:#0F0F18;border-radius:16px;padding:14px;border:1px solid #2A2A3A;">
+      <div style="margin-top:12px;background:#0F0F18;border-radius:14px;padding:12px;border:1px solid #2A2A3A;">
         <div style="font-size:11px;color:#888;margin-bottom:6px;" data-i18n="opening_balance">🏦 Opening Balance</div>
-        <div id="openingBalanceDisplay" style="font-size:22px;font-weight:800;color:#fff;margin-bottom:12px;">₹0</div>
+        <div id="openingBalanceDisplay" style="font-size:20px;font-weight:800;color:#fff;margin-bottom:10px;">₹0</div>
         <input type="number" id="openingBalanceInput" class="form-input" placeholder="Enter first opening balance" inputmode="numeric" style="margin-bottom:10px;" data-i18n-ph="placeholder_opening_balance" />
         <button class="submit-btn" style="padding:10px;font-size:13px;" onclick="saveOpeningBalance()" data-i18n="save_opening_balance">Save Opening Balance</button>
         <div style="margin-top:16px;font-size:11px;color:#888;" data-i18n="income_label">➕ Income</div>
@@ -685,6 +737,7 @@ const TRANSLATIONS = {
     footer_feedback: "Feedback or just say hi 👋",
     footer_credit: "Made with ❤️ by Himanshu",
     select_categories: "Select Categories", btn_apply: "Apply", btn_clear: "Clear",
+    insights_highest: "Highest spend", insights_avg_day: "Avg / day", insights_transactions: "{n} transactions",
     // Categories
     cat_food: "Food & Dining", cat_cafe: "Cafe & Snacks", cat_groceries: "Groceries",
     cat_transport: "Transport", cat_travel: "Travel", cat_rent_bills: "Rent & Bills",
@@ -760,6 +813,7 @@ const TRANSLATIONS = {
     footer_feedback: "Feedback ya bas hi bolo 👋",
     footer_credit: "Banayi ❤️ se — Himanshu ne",
     select_categories: "Categories Chuno", btn_apply: "Apply", btn_clear: "Clear",
+    insights_highest: "Sabse zyada", insights_avg_day: "Avg / din", insights_transactions: "{n} transactions",
     cat_food: "Khana", cat_cafe: "Chai & Snacks", cat_groceries: "Groceries",
     cat_transport: "Transport", cat_travel: "Travel", cat_rent_bills: "Rent & Bills",
     cat_subscriptions: "Subscriptions", cat_shopping: "Shopping", cat_health: "Health",
@@ -834,6 +888,7 @@ const TRANSLATIONS = {
     footer_feedback: "फ़ीडबैक या बस नमस्ते 👋",
     footer_credit: "❤️ से बनाया — हिमांशु",
     select_categories: "श्रेणियाँ चुनें", btn_apply: "लागू करें", btn_clear: "साफ़ करें",
+    insights_highest: "सबसे ज़्यादा", insights_avg_day: "औसत / दिन", insights_transactions: "{n} लेनदेन",
     cat_food: "खाना", cat_cafe: "चाय व नाश्ता", cat_groceries: "किराना",
     cat_transport: "परिवहन", cat_travel: "यात्रा", cat_rent_bills: "किराया व बिल",
     cat_subscriptions: "सब्सक्रिप्शन", cat_shopping: "खरीदारी", cat_health: "स्वास्थ्य",
@@ -934,6 +989,8 @@ let selectedDate = todayStr();
 let activeTab = 'add';
 let editId = null;
 let incomeEditId = null;
+let editFromHistory = false;
+let incomeEditFromHistory = false;
 let selectedCat = 'food';
 let confirmDeleteId = null;
 let historyFromDate = '';
@@ -1593,7 +1650,11 @@ function renderChart() {
   const totals = {};
   filtered.forEach(e => { totals[migrateCategory(e.category)] = (totals[migrateCategory(e.category)] || 0) + e.amount; });
 
-  const items = CATEGORIES.filter(c => totals[c.id]).map(c => ({ label: catLabel(c), value: totals[c.id], color: c.color }));
+  const items = CATEGORIES
+    .filter(c => totals[c.id] > 0)
+    .map(c => ({ cat: c, label: catLabel(c), value: totals[c.id], color: c.color }))
+    .sort((a, b) => b.value - a.value);
+
   const container = document.getElementById('chartContainer');
 
   if (items.length === 0) {
@@ -1602,43 +1663,48 @@ function renderChart() {
   }
 
   const sum = items.reduce((s, i) => s + i.value, 0);
-  const cx = 70, cy = 70, r = 60, ir = 36;
-  let angle = -Math.PI / 2; let paths = '';
+  const top = items[0];
 
-  items.forEach(item => {
-    const slice = (item.value / sum) * Math.PI * 2;
-    if (items.length === 1) {
-      paths += `<circle cx="${cx}" cy="${cy}" r="${(r+ir)/2}" fill="none" stroke="${item.color}" stroke-width="${r-ir}" />`;
-    } else {
-      const a1 = angle; const a2 = angle + slice;
-      const large = slice > Math.PI ? 1 : 0;
-      const x1 = cx + r*Math.cos(a1), y1 = cy + r*Math.sin(a1);
-      const x2 = cx + r*Math.cos(a2), y2 = cy + r*Math.sin(a2);
-      const x3 = cx + ir*Math.cos(a2), y3 = cy + ir*Math.sin(a2);
-      const x4 = cx + ir*Math.cos(a1), y4 = cy + ir*Math.sin(a1);
-      paths += `<path d="M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} L ${x3} ${y3} A ${ir} ${ir} 0 ${large} 0 ${x4} ${y4} Z" fill="${item.color}" />`;
-      angle = a2;
-    }
-  });
+  // Avg per day calculation — use distinct expense dates in current period
+  const dates = [...new Set(filtered.map(e => e.date))];
+  const dayCount = Math.max(1, dates.length);
+  const avgPerDay = sum / dayCount;
 
-  const legend = items.map(it => {
-    const pct = Math.round((it.value / sum) * 100);
-    return `<div class="pie-legend-item">
-      <div class="pie-legend-dot" style="background:${it.color}"></div>
-      <div class="pie-legend-label">${it.label}</div>
-      <div class="pie-legend-val">${pct}%</div>
+  // Smart summary cards
+  const summaryHTML = `
+    <div class="insights-summary-row">
+      <div class="insights-summary-card">
+        <div class="isc-label">${t('insights_highest')}</div>
+        <div class="isc-value">${top.cat.icon} ${top.label}</div>
+        <div class="isc-sub">${formatINR(top.value)}</div>
+      </div>
+      <div class="insights-summary-card">
+        <div class="isc-label">${t('insights_avg_day')}</div>
+        <div class="isc-value">${formatINR(Math.round(avgPerDay))}</div>
+        <div class="isc-sub">${filtered.length} ${filtered.length === 1 ? t('expenses_count_one') : t('insights_transactions', {n: filtered.length})}</div>
+      </div>
     </div>`;
-  }).join('');
 
-  container.innerHTML = `
-    <div class="pie-wrap">
-      <svg class="pie-svg" width="140" height="140" viewBox="0 0 140 140">
-        ${paths}
-        <text x="70" y="68" text-anchor="middle" fill="#E8E8F0" font-size="11" font-weight="600">Total</text>
-        <text x="70" y="84" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">${formatINR(sum)}</text>
-      </svg>
-      <div class="pie-legend">${legend}</div>
+  // Horizontal bar rows
+  const maxVal = items[0].value;
+  const barsHTML = `<div class="insights-bar-list">` + items.map(item => {
+    const pct = Math.round((item.value / sum) * 100);
+    const barW = Math.round((item.value / maxVal) * 100);
+    return `<div class="insights-bar-row">
+      <div class="ibr-icon">${item.cat.icon}</div>
+      <div class="ibr-track">
+        <div class="ibr-label-row">
+          <span class="ibr-name">${escapeHtml(item.label)}</span>
+          <span class="ibr-meta">${formatINR(item.value)} · ${pct}%</span>
+        </div>
+        <div class="ibr-bar-bg">
+          <div class="ibr-bar-fill" style="width:${barW}%;background:${item.color}"></div>
+        </div>
+      </div>
     </div>`;
+  }).join('') + `</div>`;
+
+  container.innerHTML = summaryHTML + barsHTML;
 }
 
 // Payment method labels (used in display + CSV)
@@ -1766,12 +1832,23 @@ window.handleSubmit = function() {
   const categoryId = migrateCategory(selectedCat);
 
   if (editId !== null) {
+    const wasFromHistory = editFromHistory;
     expenses = expenses.map(e => e.id === editId ? { ...e, date, amount, category: categoryId, note, paymentMethod } : e);
     editId = null;
+    editFromHistory = false;
     document.getElementById('submitBtn').textContent = t('btn_add_expense');
     document.getElementById('cancelBtn').style.display = 'none';
     document.getElementById('tab-add').textContent = t('tab_add_expense');
     showToast(t('toast_expense_updated'));
+    scheduleSave();
+    document.getElementById('fAmount').value = '';
+    document.getElementById('fNote').value = '';
+    document.getElementById('fDate').value = todayStr();
+    document.getElementById('fPayment').value = '';
+    selectedCat = 'food'; buildCatSelect();
+    render();
+    setTab(wasFromHistory ? 'history' : 'add');
+    return;
   } else {
     expenses.unshift({ id: Date.now(), date, amount, category: categoryId, note, paymentMethod });
     showToast(t('toast_expense_added'));
@@ -1791,6 +1868,7 @@ window.startEdit = function(id) {
   const exp = expenses.find(e => e.id === id);
   if (!exp) return;
   editId = id;
+  editFromHistory = (activeTab === 'history');
   selectedCat = migrateCategory(exp.category);
   document.getElementById('fDate').value = exp.date;
   document.getElementById('fAmount').value = exp.amount;
@@ -1805,7 +1883,9 @@ window.startEdit = function(id) {
 };
 
 window.cancelEdit = function() {
+  const wasFromHistory = editFromHistory;
   editId = null;
+  editFromHistory = false;
   document.getElementById('fAmount').value = '';
   document.getElementById('fNote').value = '';
   document.getElementById('fDate').value = todayStr();
@@ -1814,6 +1894,7 @@ window.cancelEdit = function() {
   document.getElementById('submitBtn').textContent = t('btn_add_expense');
   document.getElementById('cancelBtn').style.display = 'none';
   document.getElementById('tab-add').textContent = t('tab_add_expense');
+  if (wasFromHistory) setTab('history');
 };
 
 window.askDelete = function(id) { confirmDeleteId = id; renderHistory(); };
@@ -1833,11 +1914,20 @@ window.addIncome = function() {
   const source = document.getElementById('iSource').value.trim() || 'Income';
 
   if (incomeEditId !== null) {
+    const wasFromHistory = incomeEditFromHistory;
     incomes = incomes.map(i => i.id === incomeEditId ? { ...i, date, amount, source } : i);
     incomeEditId = null;
+    incomeEditFromHistory = false;
     showToast(t('toast_income_updated'));
     document.getElementById('incomeSubmitBtn').textContent = t('btn_add_income');
     document.getElementById('incomeCancelBtn').style.display = 'none';
+    scheduleSave();
+    document.getElementById('iAmount').value = '';
+    document.getElementById('iSource').value = '';
+    document.getElementById('iDate').value = todayStr();
+    render();
+    setTab(wasFromHistory ? 'history' : 'income');
+    return;
   } else {
     incomes.unshift({ id: Date.now(), date, amount, source });
     showToast(t('toast_income_added'));
@@ -1855,6 +1945,7 @@ window.startIncomeEdit = function(id) {
   const income = incomes.find(i => i.id === id);
   if (!income) return;
   incomeEditId = id;
+  incomeEditFromHistory = (activeTab === 'history');
   document.getElementById('iDate').value = income.date;
   document.getElementById('iAmount').value = income.amount;
   document.getElementById('iSource').value = income.source;
@@ -1865,12 +1956,15 @@ window.startIncomeEdit = function(id) {
 };
 
 window.cancelIncomeEdit = function() {
+  const wasFromHistory = incomeEditFromHistory;
   incomeEditId = null;
+  incomeEditFromHistory = false;
   document.getElementById('iAmount').value = '';
   document.getElementById('iSource').value = '';
   document.getElementById('iDate').value = todayStr();
   document.getElementById('incomeSubmitBtn').textContent = t('btn_add_income');
   document.getElementById('incomeCancelBtn').style.display = 'none';
+  if (wasFromHistory) setTab('history');
 };
 
 window.doDeleteIncome = function(id) {
@@ -2006,7 +2100,41 @@ function init() {
   render();
 }
 
-// ===== PWA manifest =====
+window.toggleHeaderLangDropdown = function(e) {
+  e.stopPropagation();
+  document.getElementById('headerLangDropdown').classList.toggle('open');
+};
+window.setLangFromHeader = function(lang, e) {
+  if (e) e.stopPropagation();
+  setLang(lang);
+  document.getElementById('headerLangDropdown').classList.remove('open');
+};
+document.addEventListener('click', () => {
+  const d = document.getElementById('headerLangDropdown');
+  if (d) d.classList.remove('open');
+});
+
+function updateHeaderLangBadge() {
+  const el = document.getElementById('headerLangLabel');
+  if (!el) return;
+  const labels = { en: '🌐 EN', hin: '🌐 HIN', hi: '🌐 हिं' };
+  el.textContent = labels[currentLang] || '🌐 EN';
+  document.querySelectorAll('.hld-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('data-lang') === currentLang);
+  });
+}
+
+// Patch setLang to also update header badge
+const _origSetLang = window.setLang;
+window.setLang = function(lang) {
+  _origSetLang(lang);
+  updateHeaderLangBadge();
+};
+
+// Init badge on load
+document.addEventListener('DOMContentLoaded', () => { setTimeout(updateHeaderLangBadge, 50); });
+
+// ===== End header lang badge =====
 (function() {
   const manifest = {
     name: "Kharcha - Expense Tracker",
