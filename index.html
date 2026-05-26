@@ -299,6 +299,31 @@
     .ibr-bar-bg { height: 7px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
     .ibr-bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
 
+    /* Chart type toggle */
+    .chart-toggle {
+      display: flex; gap: 4px; background: var(--surface2);
+      border-radius: 10px; padding: 3px;
+      margin-bottom: 14px; width: fit-content;
+      margin-left: auto;
+    }
+    .chart-toggle-btn {
+      background: transparent; border: none;
+      color: var(--dim); font-size: 11px; font-weight: 700;
+      padding: 6px 12px; border-radius: 7px;
+      cursor: pointer; font-family: inherit;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .chart-toggle-btn.active { background: var(--purple); color: #fff; }
+
+    /* Pie chart */
+    .pie-wrap { display: flex; align-items: center; gap: 16px; margin-top: 4px; }
+    .pie-svg { flex-shrink: 0; }
+    .pie-legend { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .pie-legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; min-width: 0; }
+    .pie-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+    .pie-legend-label { color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+    .pie-legend-val { color: var(--muted); font-weight: 600; font-size: 11px; flex-shrink: 0; }
+
     .login-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 32px 24px; z-index: 1000; }
     .login-overlay.hidden { display: none; }
     .login-logo { font-size: 64px; margin-bottom: 14px; }
@@ -737,7 +762,7 @@ const TRANSLATIONS = {
     footer_feedback: "Feedback or just say hi 👋",
     footer_credit: "Made with ❤️ by Himanshu",
     select_categories: "Select Categories", btn_apply: "Apply", btn_clear: "Clear",
-    insights_highest: "Highest spend", insights_avg_day: "Avg / day", insights_transactions: "{n} transactions",
+    insights_highest: "Highest spend", insights_avg_day: "Avg / day", insights_transactions: "{n} transactions", chart_bar: "Bar", chart_pie: "Pie", insights_total: "Total",
     // Categories
     cat_food: "Food & Dining", cat_cafe: "Cafe & Snacks", cat_groceries: "Groceries",
     cat_transport: "Transport", cat_travel: "Travel", cat_rent_bills: "Rent & Bills",
@@ -813,7 +838,7 @@ const TRANSLATIONS = {
     footer_feedback: "Feedback ya bas hi bolo 👋",
     footer_credit: "Banayi ❤️ se — Himanshu ne",
     select_categories: "Categories Chuno", btn_apply: "Apply", btn_clear: "Clear",
-    insights_highest: "Sabse zyada", insights_avg_day: "Avg / din", insights_transactions: "{n} transactions",
+    insights_highest: "Sabse zyada", insights_avg_day: "Avg / din", insights_transactions: "{n} transactions", chart_bar: "Bar", chart_pie: "Pie", insights_total: "Total",
     cat_food: "Khana", cat_cafe: "Chai & Snacks", cat_groceries: "Groceries",
     cat_transport: "Transport", cat_travel: "Travel", cat_rent_bills: "Rent & Bills",
     cat_subscriptions: "Subscriptions", cat_shopping: "Shopping", cat_health: "Health",
@@ -888,7 +913,7 @@ const TRANSLATIONS = {
     footer_feedback: "फ़ीडबैक या बस नमस्ते 👋",
     footer_credit: "❤️ से बनाया — हिमांशु",
     select_categories: "श्रेणियाँ चुनें", btn_apply: "लागू करें", btn_clear: "साफ़ करें",
-    insights_highest: "सबसे ज़्यादा", insights_avg_day: "औसत / दिन", insights_transactions: "{n} लेनदेन",
+    insights_highest: "सबसे ज़्यादा", insights_avg_day: "औसत / दिन", insights_transactions: "{n} लेनदेन", chart_bar: "बार", chart_pie: "पाई", insights_total: "कुल",
     cat_food: "खाना", cat_cafe: "चाय व नाश्ता", cat_groceries: "किराना",
     cat_transport: "परिवहन", cat_travel: "यात्रा", cat_rent_bills: "किराया व बिल",
     cat_subscriptions: "सब्सक्रिप्शन", cat_shopping: "खरीदारी", cat_health: "स्वास्थ्य",
@@ -996,6 +1021,7 @@ let confirmDeleteId = null;
 let historyFromDate = '';
 let historyToDate = '';
 let historySearchText = '';
+let chartType = localStorage.getItem('kharcha_chart_type') || 'bar'; // 'bar' or 'pie'
 let historyCategoryFilters = []; // array of category ids (empty = all)
 let pendingCatMultiSelection = []; // working set inside modal
 
@@ -1645,6 +1671,12 @@ function renderSummary() {
   });
 }
 
+window.setChartType = function(type) {
+  chartType = type;
+  localStorage.setItem('kharcha_chart_type', type);
+  renderChart();
+};
+
 function renderChart() {
   const filtered = getFiltered();
   const totals = {};
@@ -1665,12 +1697,12 @@ function renderChart() {
   const sum = items.reduce((s, i) => s + i.value, 0);
   const top = items[0];
 
-  // Avg per day calculation — use distinct expense dates in current period
+  // Avg per day calculation
   const dates = [...new Set(filtered.map(e => e.date))];
   const dayCount = Math.max(1, dates.length);
   const avgPerDay = sum / dayCount;
 
-  // Smart summary cards
+  // Smart summary cards (shown for both chart types)
   const summaryHTML = `
     <div class="insights-summary-row">
       <div class="insights-summary-card">
@@ -1685,9 +1717,26 @@ function renderChart() {
       </div>
     </div>`;
 
-  // Horizontal bar rows
+  // Toggle button (bar/pie)
+  const toggleHTML = `
+    <div class="chart-toggle">
+      <button class="chart-toggle-btn ${chartType === 'bar' ? 'active' : ''}" onclick="setChartType('bar')" title="Bar chart">📊 ${t('chart_bar')}</button>
+      <button class="chart-toggle-btn ${chartType === 'pie' ? 'active' : ''}" onclick="setChartType('pie')" title="Pie chart">🥧 ${t('chart_pie')}</button>
+    </div>`;
+
+  let chartHTML;
+  if (chartType === 'pie') {
+    chartHTML = renderPieChart(items, sum);
+  } else {
+    chartHTML = renderBarChart(items, sum);
+  }
+
+  container.innerHTML = summaryHTML + toggleHTML + chartHTML;
+}
+
+function renderBarChart(items, sum) {
   const maxVal = items[0].value;
-  const barsHTML = `<div class="insights-bar-list">` + items.map(item => {
+  return `<div class="insights-bar-list">` + items.map(item => {
     const pct = Math.round((item.value / sum) * 100);
     const barW = Math.round((item.value / maxVal) * 100);
     return `<div class="insights-bar-row">
@@ -1703,8 +1752,49 @@ function renderChart() {
       </div>
     </div>`;
   }).join('') + `</div>`;
+}
 
-  container.innerHTML = summaryHTML + barsHTML;
+function renderPieChart(items, sum) {
+  // Build donut chart SVG
+  const cx = 70, cy = 70, r = 60, ir = 36;
+  let angle = -Math.PI / 2;
+  let paths = '';
+
+  items.forEach(item => {
+    const slice = (item.value / sum) * Math.PI * 2;
+    if (items.length === 1) {
+      // Full ring for single category
+      paths += `<circle cx="${cx}" cy="${cy}" r="${(r+ir)/2}" fill="none" stroke="${item.color}" stroke-width="${r-ir}" />`;
+    } else {
+      const a1 = angle;
+      const a2 = angle + slice;
+      const large = slice > Math.PI ? 1 : 0;
+      const x1 = cx + r*Math.cos(a1), y1 = cy + r*Math.sin(a1);
+      const x2 = cx + r*Math.cos(a2), y2 = cy + r*Math.sin(a2);
+      const x3 = cx + ir*Math.cos(a2), y3 = cy + ir*Math.sin(a2);
+      const x4 = cx + ir*Math.cos(a1), y4 = cy + ir*Math.sin(a1);
+      paths += `<path d="M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} L ${x3} ${y3} A ${ir} ${ir} 0 ${large} 0 ${x4} ${y4} Z" fill="${item.color}" />`;
+      angle = a2;
+    }
+  });
+
+  const legend = items.map(it => {
+    const pct = Math.round((it.value / sum) * 100);
+    return `<div class="pie-legend-item">
+      <div class="pie-legend-dot" style="background:${it.color}"></div>
+      <div class="pie-legend-label">${it.cat.icon} ${escapeHtml(it.label)}</div>
+      <div class="pie-legend-val">${pct}%</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="pie-wrap">
+    <svg class="pie-svg" width="140" height="140" viewBox="0 0 140 140">
+      ${paths}
+      <text x="70" y="68" text-anchor="middle" fill="#E8E8F0" font-size="11" font-weight="600">${t('insights_total')}</text>
+      <text x="70" y="84" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">${formatINR(sum)}</text>
+    </svg>
+    <div class="pie-legend">${legend}</div>
+  </div>`;
 }
 
 // Payment method labels (used in display + CSV)
@@ -1861,7 +1951,7 @@ window.handleSubmit = function() {
   document.getElementById('fPayment').value = '';
   selectedCat = 'food'; buildCatSelect();
   render();
-  setTab('history');
+  // Stay on Add tab so user can quickly add another expense
 };
 
 window.startEdit = function(id) {
@@ -1879,7 +1969,7 @@ window.startEdit = function(id) {
   document.getElementById('cancelBtn').style.display = 'block';
   document.getElementById('tab-add').textContent = t('tab_edit_expense');
   setTab('add');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Don't force scroll-to-top — let tab switching handle visibility naturally
 };
 
 window.cancelEdit = function() {
@@ -1938,7 +2028,7 @@ window.addIncome = function() {
   document.getElementById('iSource').value = '';
   document.getElementById('iDate').value = todayStr();
   render();
-  setTab('history');
+  // Stay on Income tab so user can quickly add another
 };
 
 window.startIncomeEdit = function(id) {
@@ -1952,7 +2042,7 @@ window.startIncomeEdit = function(id) {
   document.getElementById('incomeSubmitBtn').textContent = t('btn_update_income');
   document.getElementById('incomeCancelBtn').style.display = 'block';
   setTab('income');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Don't force scroll-to-top
 };
 
 window.cancelIncomeEdit = function() {
