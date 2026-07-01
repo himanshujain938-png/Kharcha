@@ -351,7 +351,7 @@ let currentLang=localStorage.getItem('kharcha_lang')||'en';
 let currentView='day',currentDate=new Date(),currentPage='home',addType='expense';
 let expenses=[],incomes=[],openingBalance=0;
 let editingId=null,editingIncomeId=null;
-let historySearch='',historyCategories=[],historyFrom='',historyTo='',historyActive=false;
+let historySearch='',historyCategories=[],historyFrom='',historyTo='';
 let insightPreset='month',chartType='bar';
 let selectedCatKey='',catMultiTemp=[];
 let currentUid=null,isGuest=false,unsubscribe=null;
@@ -437,13 +437,31 @@ window.deleteIncome=function(id){pendingDeleteId=id;pendingDeleteType='income';r
 window.confirmDelete=function(){if(pendingDeleteType==='expense'){expenses=expenses.filter(e=>e.id!==pendingDeleteId);showToast(t('toast_deleted'));}else{incomes=incomes.filter(e=>e.id!==pendingDeleteId);showToast(t('toast_income_deleted'));}pendingDeleteId=pendingDeleteType=null;saveData();renderAll();};
 window.cancelDelete=function(){pendingDeleteId=pendingDeleteType=null;renderHistory();};
 
-function getFilteredExpenses(){let arr=[...expenses];if(historyActive){if(historySearch)arr=arr.filter(e=>(e.note||'').toLowerCase().includes(historySearch.toLowerCase())||t(e.category).toLowerCase().includes(historySearch.toLowerCase()));if(historyCategories.length)arr=arr.filter(e=>historyCategories.includes(e.category));if(historyFrom)arr=arr.filter(e=>e.date>=historyFrom);if(historyTo)arr=arr.filter(e=>e.date<=historyTo);}return arr.sort((a,b)=>b.date.localeCompare(a.date)||((b.ts||0)-(a.ts||0)));}
+function getFilteredExpenses(){
+  let arr=[...expenses];
+  const q=(historySearch||'').toLowerCase().trim();
+  if(q)arr=arr.filter(e=>(e.note||'').toLowerCase().includes(q)||catName(e.category).toLowerCase().includes(q)||pmLabel(e.payment||'').toLowerCase().includes(q)||String(e.amount).includes(q));
+  if(historyCategories.length)arr=arr.filter(e=>{const ek=(resolveCat(e.category)||{}).key||e.category;return historyCategories.some(hc=>((resolveCat(hc)||{}).key||hc)===ek);});
+  if(historyFrom)arr=arr.filter(e=>e.date>=historyFrom);
+  if(historyTo)arr=arr.filter(e=>e.date<=historyTo);
+  return arr.sort((a,b)=>b.date.localeCompare(a.date)||((b.ts||0)-(a.ts||0)));
+}
+function getFilteredIncomes(){
+  let arr=[...incomes];
+  const q=(historySearch||'').toLowerCase().trim();
+  if(q)arr=arr.filter(e=>(e.source||'').toLowerCase().includes(q)||String(e.amount).includes(q));
+  // Category filter hides income (income has no category); date filters still apply
+  if(historyCategories.length)arr=[];
+  if(historyFrom)arr=arr.filter(e=>e.date>=historyFrom);
+  if(historyTo)arr=arr.filter(e=>e.date<=historyTo);
+  return arr.sort((a,b)=>b.date.localeCompare(a.date));
+}
 
 function renderHistory(){
   const el=document.getElementById('historyList');
   const filtered=getFilteredExpenses();
   let ch='';if(pendingDeleteId)ch=`<div class="confirm-box"><span class="confirm-text">Delete this entry?</span><button class="confirm-yes" onclick="confirmDelete()">Delete</button><button class="confirm-no" onclick="cancelDelete()">Cancel</button></div>`;
-  const allInc=[...incomes].sort((a,b)=>b.date.localeCompare(a.date));
+  const allInc=getFilteredIncomes();
   const allItems=[...filtered.map(e=>({...e,_t:'expense'})),...allInc.map(e=>({...e,_t:'income'}))].sort((a,b)=>b.date.localeCompare(a.date)||((b.ts||0)-(a.ts||0)));
   if(!allItems.length){el.innerHTML=ch+`<div class="empty"><div class="empty-icon">📋</div><div>${t('history_empty')}</div></div>`;return;}
   const groups={};allItems.forEach(e=>{if(!groups[e.date])groups[e.date]=[];groups[e.date].push(e);});
@@ -456,10 +474,10 @@ function buildIncItem(e){return`<div class="expense-item"><div class="exp-icon" 
 function pmLabel(pm){return{cash:t('pm_cash'),upi:t('pm_upi'),credit_card:t('pm_credit_card'),debit_card:t('pm_debit_card'),bank_transfer:t('pm_bank_transfer')}[pm]||pm;}
 function pmIcon(pm){return{cash:'💵',upi:'📱',credit_card:'💳',debit_card:'🏧',bank_transfer:'🏦'}[pm]||'💳';}
 
-window.onSearchInput=function(val){historySearch=val;document.getElementById('searchClear').classList.toggle('show',!!val);};
-window.clearSearch=function(){historySearch='';document.getElementById('searchInput').value='';document.getElementById('searchClear').classList.remove('show');};
-window.applyHistoryFilters=function(){historySearch=document.getElementById('searchInput').value.trim();historyFrom=document.getElementById('fromDateFilter').value;historyTo=document.getElementById('toDateFilter').value;historyActive=true;showToast(t('toast_filters_applied'));renderHistory();};
-window.clearHistoryFilters=function(){historySearch='';historyCategories=[];historyFrom='';historyTo='';historyActive=false;document.getElementById('searchInput').value='';document.getElementById('fromDateFilter').value='';document.getElementById('toDateFilter').value='';document.getElementById('searchClear').classList.remove('show');renderCatFilterChips();showToast(t('toast_filters_cleared'));renderHistory();};
+window.onSearchInput=function(val){historySearch=val;document.getElementById('searchClear').classList.toggle('show',!!val);renderHistory();};
+window.clearSearch=function(){historySearch='';document.getElementById('searchInput').value='';document.getElementById('searchClear').classList.remove('show');renderHistory();};
+window.applyHistoryFilters=function(){historySearch=document.getElementById('searchInput').value.trim();historyFrom=document.getElementById('fromDateFilter').value;historyTo=document.getElementById('toDateFilter').value;showToast(t('toast_filters_applied'));renderHistory();};
+window.clearHistoryFilters=function(){historySearch='';historyCategories=[];historyFrom='';historyTo='';document.getElementById('searchInput').value='';document.getElementById('fromDateFilter').value='';document.getElementById('toDateFilter').value='';document.getElementById('searchClear').classList.remove('show');renderCatFilterChips();showToast(t('toast_filters_cleared'));renderHistory();};
 window.exportHistoryCSV=function(){const arr=getFilteredExpenses();if(!arr.length){showToast(t('toast_no_entries'));return;}const rows=[['Date','Category','Amount','Payment','Note']];arr.forEach(e=>rows.push([e.date,t(e.category),e.amount,pmLabel(e.payment||''),e.note||'']));const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`kharcha_${todayStr()}.csv`;a.click();showToast(t('toast_csv_exported').replace('{n}',arr.length));};
 
 window.openCategoryMultiSelect=function(){catMultiTemp=[...historyCategories];const el=document.getElementById('catMultiList');el.innerHTML=CATEGORIES.map(cat=>{const sel=catMultiTemp.includes(cat.key);return`<div class="multi-option ${sel?'selected':''}" onclick="toggleCatMulti('${cat.key}',this)"><div class="check">${sel?'✓':''}</div><span class="opt-icon">${cat.icon}</span><span class="opt-label">${t(cat.key)}</span></div>`;}).join('');document.getElementById('catMultiModal').classList.add('open');};
@@ -467,7 +485,7 @@ window.closeCategoryMultiSelect=function(){document.getElementById('catMultiModa
 window.onCatMultiBackdropClick=function(e){if(e.target===document.getElementById('catMultiModal'))closeCategoryMultiSelect();};
 window.toggleCatMulti=function(key,el){const idx=catMultiTemp.indexOf(key);if(idx===-1){catMultiTemp.push(key);el.classList.add('selected');el.querySelector('.check').textContent='✓';}else{catMultiTemp.splice(idx,1);el.classList.remove('selected');el.querySelector('.check').textContent='';}};
 window.catMultiClearAll=function(){catMultiTemp=[];document.querySelectorAll('#catMultiList .multi-option').forEach(el=>{el.classList.remove('selected');el.querySelector('.check').textContent='';});};
-window.catMultiApply=function(){historyCategories=[...catMultiTemp];renderCatFilterChips();closeCategoryMultiSelect();};
+window.catMultiApply=function(){historyCategories=[...catMultiTemp];renderCatFilterChips();closeCategoryMultiSelect();renderHistory();};
 function renderCatFilterChips(){const el=document.getElementById('categoryFilterChips');if(!historyCategories.length){el.innerHTML=`<span class="placeholder">${t('filter_all_categories')}</span>`;return;}el.innerHTML=historyCategories.map(k=>{const cat=CATEGORIES.find(c=>c.key===k)||{};return`<span class="cat-chip">${cat.icon||''} ${t(k)}</span>`;}).join('');}
 
 window.setInsightPreset=function(preset){insightPreset=preset;document.querySelectorAll('.preset-btn').forEach(b=>b.classList.toggle('active',b.dataset.preset===preset));document.getElementById('insightsCustomRange').style.display=preset==='custom'?'':'none';if(preset!=='custom')renderInsightsPage();};
