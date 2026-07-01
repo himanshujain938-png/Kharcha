@@ -264,13 +264,15 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
 <div class="date-nav"><button class="date-nav-btn" onclick="nudgeDate(-1)">‹</button><input type="date" class="date-input" id="dateInput" onchange="onDateChange(this.value)"/><button class="date-nav-btn" onclick="nudgeDate(1)">›</button></div>
 <div class="card"><div class="period-label" id="periodLabel"></div><div class="total-amount" id="totalAmount">₹0</div><div class="exp-count" id="expCount">0 expenses</div>
 <div class="balance-grid">
-<div class="balance-row"><span class="balance-label" data-i18n="opening_balance">🏦 Opening Balance</span><span class="balance-val bv-white" id="openingBalanceDisplay">₹0</span></div>
+<div class="balance-row"><span class="balance-label" data-i18n="opening_balance">🏦 Opening Balance</span><span style="display:flex;align-items:center;gap:8px"><span class="balance-val bv-white" id="openingBalanceDisplay">₹0</span><button id="obEditBtn" onclick="showObEdit()" style="display:none;background:rgba(109,89,255,0.15);border:none;border-radius:6px;color:#9D8FFF;font-size:11px;padding:3px 7px;cursor:pointer;font-family:inherit">✏️</button></span></div>
 <div class="balance-row"><span class="balance-label" data-i18n="income_label">➕ Income</span><span class="balance-val bv-green" id="incomeTodayDisplay">₹0</span></div>
 <div class="balance-row"><span class="balance-label" data-i18n="expense_label">➖ Expense</span><span class="balance-val bv-red" id="expenseTodayDisplay">₹0</span></div>
 <div class="balance-row"><span class="balance-label" data-i18n="closing_balance">🔒 Closing Balance</span><span class="balance-val bv-purple" id="closingBalanceDisplay">₹0</span></div>
 </div>
+<div id="obEditWrap">
 <div style="font-size:10px;color:var(--dim);margin-top:10px" data-i18n="ob_hint">Starting balance (first ever) — auto carries forward daily</div>
 <div class="ob-edit-row" style="margin-top:6px"><input type="number" class="ob-input" id="openingBalanceInput" inputmode="numeric" data-i18n-ph="placeholder_opening_balance" placeholder="Edit opening balance"/><button class="ob-save-btn" onclick="saveOpeningBalance()" data-i18n="save_opening_balance">Save</button></div>
+</div>
 <div class="cat-grid" id="catGrid"></div></div>
 <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:4px 0 8px">Recent</div>
 <div id="homeRecentList"></div>
@@ -395,7 +397,9 @@ function filterByPeriod(arr,view,date){const{start,end}=getPeriodRange(view,date
 window.setView=function(v){currentView=v;['day','week','month'].forEach(x=>document.getElementById('btn-'+x).classList.toggle('active',x===v));renderHome();};
 window.onDateChange=function(val){currentDate=new Date(val+'T00:00:00');renderHome();};
 window.nudgeDate=function(dir){const d=new Date(currentDate);if(currentView==='day')d.setDate(d.getDate()+dir);if(currentView==='week')d.setDate(d.getDate()+dir*7);if(currentView==='month')d.setMonth(d.getMonth()+dir);currentDate=d;document.getElementById('dateInput').value=d.toISOString().split('T')[0];renderHome();};
-window.saveOpeningBalance=function(){const val=parseFloat(document.getElementById('openingBalanceInput').value);if(isNaN(val)){showToast(t('toast_invalid_opening'));return;}openingBalance=val;saveData();showToast(t('toast_opening_saved'));renderHome();};
+let _obEditForced=false;
+window.showObEdit=function(){_obEditForced=true;document.getElementById('obEditWrap').style.display='';document.getElementById('obEditBtn').style.display='none';document.getElementById('openingBalanceInput').focus();};
+window.saveOpeningBalance=function(){const val=parseFloat(document.getElementById('openingBalanceInput').value);if(isNaN(val)){showToast(t('toast_invalid_opening'));return;}openingBalance=val;_obEditForced=false;saveData();showToast(t('toast_opening_saved'));renderHome();};
 function renderHome(){
   const dateStr=currentDate.toISOString().split('T')[0];
   document.getElementById('dateInput').value=dateStr;
@@ -419,6 +423,10 @@ function renderHome(){
   document.getElementById('closingBalanceDisplay').textContent=fmtAmt(cl);
   // The editable input always edits the BASE opening balance (first-ever starting point)
   document.getElementById('openingBalanceInput').value=(openingBalance!==0?openingBalance:'');
+  // If base opening balance already set, collapse the edit field and show pencil instead
+  const hasBase=(openingBalance!==0);
+  if(!_obEditForced){document.getElementById('obEditWrap').style.display=hasBase?'none':'';}
+  document.getElementById('obEditBtn').style.display=(hasBase&&!_obEditForced)?'':'none';
   renderCatGrid(pe);renderHomeRecent();
 }
 function renderCatGrid(pe){const el=document.getElementById('catGrid');const ct={};pe.forEach(e=>{ct[e.category]=(ct[e.category]||0)+e.amount;});const sorted=Object.entries(ct).sort((a,b)=>b[1]-a[1]).slice(0,4);if(!sorted.length){el.innerHTML='';return;}el.innerHTML=sorted.map(([key,amt])=>`<div class="cat-card"><div class="cat-dot" style="background:${catColor(key)}"></div><div><div class="cat-name">${catIcon(key)} ${catName(key)}</div><div class="cat-amt">${fmtAmt(amt)}</div></div></div>`).join('');}
