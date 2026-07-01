@@ -137,6 +137,13 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
 .pie-row-name{flex:1;font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pie-row-amt{font-size:13px;font-weight:700;color:var(--text);flex-shrink:0}
 .pie-row-pct{font-size:11px;color:var(--muted);font-weight:600;flex-shrink:0;width:38px;text-align:right}
+.drill-item{display:flex;align-items:center;gap:10px;padding:12px 8px;border-bottom:1px solid var(--border)}
+.drill-item:last-child{border-bottom:none}
+.drill-item-info{flex:1;min-width:0}
+.drill-item-note{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drill-item-meta{font-size:11px;color:var(--dim);margin-top:2px}
+.drill-item-amt{font-size:14px;font-weight:800;color:var(--red);flex-shrink:0}
+.insights-bar-row.drill:active,.pie-row.drill:active{opacity:0.6}
 .pie-svg{flex-shrink:0}
 .pie-legend{flex:1;display:flex;flex-direction:column;gap:7px;min-width:0}
 .pie-legend-item{display:flex;align-items:center;gap:8px;font-size:12px;min-width:0}
@@ -322,6 +329,7 @@ html,body{background:var(--bg);color:var(--text);font-family:-apple-system,Blink
 </div>
 <div class="multi-modal-backdrop" id="catMultiModal" onclick="onCatMultiBackdropClick(event)"><div class="multi-modal"><div class="multi-modal-header"><div class="multi-modal-title" data-i18n="select_categories">Select Categories</div><button class="multi-modal-close" onclick="closeCategoryMultiSelect()">✕</button></div><div class="multi-modal-list" id="catMultiList"></div><div class="multi-modal-footer"><button class="clear-btn" onclick="catMultiClearAll()" data-i18n="btn_clear">Clear</button><button class="apply-btn" onclick="catMultiApply()" data-i18n="btn_apply">Apply</button></div></div></div>
 <input type="file" id="importFile" accept=".json" onchange="importBackup(event)" style="display:none"/>
+<div class="multi-modal-backdrop" id="catDrillModal" onclick="onDrillBackdropClick(event)"><div class="multi-modal"><div class="multi-modal-header"><div class="multi-modal-title" id="catDrillTitle">Category</div><button class="multi-modal-close" onclick="closeCatDrill()">✕</button></div><div class="multi-modal-list" id="catDrillList"></div></div></div>
 <div class="toast" id="toast"></div>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -464,6 +472,26 @@ function renderCatFilterChips(){const el=document.getElementById('categoryFilter
 
 window.setInsightPreset=function(preset){insightPreset=preset;document.querySelectorAll('.preset-btn').forEach(b=>b.classList.toggle('active',b.dataset.preset===preset));document.getElementById('insightsCustomRange').style.display=preset==='custom'?'':'none';if(preset!=='custom')renderInsightsPage();};
 window.setChartType=function(type){chartType=type;document.getElementById('chartBarBtn').classList.toggle('active',type==='bar');document.getElementById('chartPieBtn').classList.toggle('active',type==='pie');renderInsightsPage();};
+window.openCatDrill=function(catKey){
+  const{from,to}=getInsightRange();
+  // Match all expenses in range whose resolved category equals this one
+  const targetKey=(resolveCat(catKey)||{}).key||catKey;
+  const items=expenses.filter(e=>{
+    if(e.date<from||e.date>to)return false;
+    const ek=(resolveCat(e.category)||{}).key||e.category;
+    return ek===targetKey;
+  }).sort((a,b)=>b.date.localeCompare(a.date)||((b.ts||0)-(a.ts||0)));
+  const tot=items.reduce((s,e)=>s+e.amount,0);
+  document.getElementById('catDrillTitle').innerHTML=`${catIcon(catKey)} ${catName(catKey)} · ${fmtAmt(tot)}`;
+  const el=document.getElementById('catDrillList');
+  if(!items.length){el.innerHTML=`<div class="empty" style="padding:24px 0"><div class="empty-icon">📋</div><div>${t('history_empty')}</div></div>`;}
+  else{
+    el.innerHTML=`<div style="font-size:11px;color:var(--dim);padding:4px 8px 10px">${items.length} ${items.length===1?t('expenses_count_one').replace('1 ',''):t('expenses_count_many').replace('{n} ','')}</div>`+items.map(e=>`<div class="drill-item"><div class="drill-item-info"><div class="drill-item-note">${e.note||catName(e.category)}</div><div class="drill-item-meta">${e.payment?pmLabel(e.payment)+' · ':''}${fmtDt(e.date)}</div></div><div class="drill-item-amt">${fmtAmt(e.amount)}</div></div>`).join('');
+  }
+  document.getElementById('catDrillModal').classList.add('open');
+};
+window.closeCatDrill=function(){document.getElementById('catDrillModal').classList.remove('open');};
+window.onDrillBackdropClick=function(e){if(e.target===document.getElementById('catDrillModal'))closeCatDrill();};
 
 function getInsightRange(){
   const now=new Date();const y=now.getFullYear(),m=now.getMonth();
@@ -494,10 +522,10 @@ function renderInsightsPage(){
 }
 
 const CLRS=['#6D59FF','#FF6B6B','#4ADE80','#F59E0B','#60A5FA','#E879F9','#34D399','#FB923C','#818CF8','#2DD4BF'];
-function renderBarChart(container,sorted,total){container.innerHTML=`<div class="insights-bar-list">${sorted.slice(0,8).map(([key,amt],i)=>{const pct=total?Math.round(amt/total*100):0;return`<div class="insights-bar-row"><div class="ibr-icon">${catIcon(key)}</div><div class="ibr-track"><div class="ibr-label-row"><span class="ibr-name">${catName(key)}</span><span class="ibr-meta">${fmtAmt(amt)} · ${pct}%</span></div><div class="ibr-bar-bg"><div class="ibr-bar-fill" style="width:${pct}%;background:${CLRS[i%CLRS.length]}"></div></div></div></div>`;}).join('')}</div>`;}
+function renderBarChart(container,sorted,total){container.innerHTML=`<div class="insights-bar-list">${sorted.slice(0,8).map(([key,amt],i)=>{const pct=total?Math.round(amt/total*100):0;return`<div class="insights-bar-row drill" onclick="openCatDrill('${key}')" style="cursor:pointer"><div class="ibr-icon">${catIcon(key)}</div><div class="ibr-track"><div class="ibr-label-row"><span class="ibr-name">${catName(key)} <span style="color:var(--purple-light);font-size:10px">›</span></span><span class="ibr-meta">${fmtAmt(amt)} · ${pct}%</span></div><div class="ibr-bar-bg"><div class="ibr-bar-fill" style="width:${pct}%;background:${CLRS[i%CLRS.length]}"></div></div></div></div>`;}).join('')}</div>`;}
 function renderPieChart(container,sorted,total){const topN=sorted.slice(0,10);const cx=90,cy=90,r=80,ir=46;let sa=-Math.PI/2,paths='';topN.forEach(([key,amt],i)=>{const angle=(amt/total)*Math.PI*2;const ea=sa+angle,lg=angle>Math.PI?1:0,col=CLRS[i%CLRS.length];const x1=cx+r*Math.cos(sa),y1=cy+r*Math.sin(sa),x2=cx+r*Math.cos(ea),y2=cy+r*Math.sin(ea),ix1=cx+ir*Math.cos(sa),iy1=cy+ir*Math.sin(sa),ix2=cx+ir*Math.cos(ea),iy2=cy+ir*Math.sin(ea);paths+=`<path d="M${ix1},${iy1} L${x1},${y1} A${r},${r} 0 ${lg},1 ${x2},${y2} L${ix2},${iy2} A${ir},${ir} 0 ${lg},0 ${ix1},${iy1}" fill="${col}" stroke="#0F0F13" stroke-width="2"/>`;sa=ea;});
 const centerLabel=`<text x="${cx}" y="${cy-6}" text-anchor="middle" fill="#9898B8" font-size="9" font-family="sans-serif">${t('insights_total')}</text><text x="${cx}" y="${cy+11}" text-anchor="middle" fill="#fff" font-size="14" font-weight="700" font-family="sans-serif">${fmtAmt(total)}</text>`;
-const rows=topN.map(([key,amt],i)=>{const pct=Math.round(amt/total*100);return`<div class="pie-row"><div class="pie-row-dot" style="background:${CLRS[i%CLRS.length]}"></div><span class="pie-row-icon">${catIcon(key)}</span><span class="pie-row-name">${catName(key)}</span><span class="pie-row-amt">${fmtAmt(amt)}</span><span class="pie-row-pct">${pct}%</span></div>`;}).join('');
+const rows=topN.map(([key,amt],i)=>{const pct=Math.round(amt/total*100);return`<div class="pie-row drill" onclick="openCatDrill('${key}')" style="cursor:pointer"><div class="pie-row-dot" style="background:${CLRS[i%CLRS.length]}"></div><span class="pie-row-icon">${catIcon(key)}</span><span class="pie-row-name">${catName(key)}</span><span class="pie-row-amt">${fmtAmt(amt)}</span><span class="pie-row-pct">${pct}% ›</span></div>`;}).join('');
 container.innerHTML=`<div class="pie-centered"><svg width="180" height="180" viewBox="0 0 180 180">${paths}${centerLabel}</svg></div><div class="pie-rows">${rows}</div>`;}
 function renderPMGrid(filtered){const el=document.getElementById('pmGrid');const pt={};filtered.forEach(e=>{if(e.payment)pt[e.payment]=(pt[e.payment]||0)+e.amount;});const pe=Object.entries(pt).sort((a,b)=>b[1]-a[1]);const tot=pe.reduce((s,[,v])=>s+v,0);if(!pe.length){el.innerHTML=`<div class="empty" style="padding:16px 0;grid-column:1/-1"><div style="font-size:11px;color:var(--dim)">No payment data yet</div></div>`;return;}el.innerHTML=pe.map(([pm,amt])=>`<div class="pm-card"><div class="pm-icon">${pmIcon(pm)}</div><div class="pm-name">${pmLabel(pm)}</div><div class="pm-amt">${fmtAmt(amt)}</div><div class="pm-pct">${tot?Math.round(amt/tot*100):0}% of total</div></div>`).join('');}
 
